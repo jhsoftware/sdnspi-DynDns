@@ -78,6 +78,10 @@ Public Class DynDNSPlugIn
       errorMsg = "Another plug-in instance is using the same base URL for HTTP services"
       Return True
     End If
+    If c1.UpMeHttpDynCom AndAlso c2.UpMeHttpDynCom Then
+      errorMsg = "Only one plug-in instance can have the ""HTTP - Dyn.com URL format"" update method enabled"
+      Return True
+    End If
     Return False
   End Function
 
