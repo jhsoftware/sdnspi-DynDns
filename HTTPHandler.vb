@@ -15,6 +15,8 @@
       Case Else
         If x.EndsWith("/gnudip/cgi-bin/gdipupdt.cgi") Then
           ProcGnuDIP()
+        ElseIf x = "/nic/update" Then
+          ProcDynCom()
         Else
           Send404()
         End If
@@ -99,6 +101,42 @@
       plugin.PerformUpdate(user, ipAddr, ttl, upMethod)
       SendOK(ipAddr.ToString)
     End If
+  End Sub
+
+  Private Sub ProcDynCom()
+    If Not plugin.Cfg.UpMeHttpDynCom Then SendError("Dyn.com update method is not enabled") : Exit Sub
+
+    Dim userID As JHSoftware.SimpleDNS.Plugin.DomainName = Nothing
+    Dim user As MyConfig.User = Nothing
+    If ctx.User Is Nothing OrElse Not TypeOf ctx.User.Identity Is Net.HttpListenerBasicIdentity Then Send401() : Exit Sub
+
+    With DirectCast(ctx.User.Identity, Net.HttpListenerBasicIdentity)
+      If Not JHSoftware.SimpleDNS.Plugin.DomainName.TryParse(.Name, userID) OrElse
+             Not plugin.Cfg.Users.TryGetValue(userID, user) OrElse
+             user.Disabled OrElse
+             user.Password <> .Password Then Send401() : Exit Sub
+    End With
+
+    Dim ipAddr As JHSoftware.SimpleDNS.Plugin.IPAddressV4 = Nothing
+    Dim x As String
+
+    x = ctx.Request.QueryString("myip")
+    If Not String.IsNullOrEmpty(x) Then
+      'When invalid IP is specified dyn.com uses client IP (tested 10 jan 2017) 
+      If Not JHSoftware.SimpleDNS.Plugin.IPAddressV4.TryParse(x.Trim, ipAddr) Then ipAddr = DetectIP()
+    Else
+      ipAddr = DetectIP()
+    End If
+
+    x = ctx.Request.QueryString("offline")
+    If Not String.IsNullOrEmpty(x) AndAlso x.ToUpper()(0) = "Y"c Then
+      plugin.SetUserOffline(user, "HTTP - Dyn.com URL format")
+    Else
+      plugin.PerformUpdate(user, ipAddr, DynDNSPlugIn.DefaultTTL, "HTTP - Dyn.com URL format")
+    End If
+
+    ctx.Response.ContentType = "text/plain"
+    ctx.Response.Close(System.Text.Encoding.ASCII.GetBytes("good " & ipAddr.ToString), False)
   End Sub
 
 

@@ -9,6 +9,7 @@ Public Class frmUpdateMethods
     chkURL.Checked = cfg.UpMeHttpUrl
     chkBasic.Checked = cfg.UpMeHttpBasic
     chkGnudipH.Checked = cfg.UpMeHttpGD
+    chkDyncom.Checked = cfg.UpMeHttpDynCom
 
     chkRDetect.Checked = cfg.RemoteDetect
 
@@ -22,6 +23,7 @@ Public Class frmUpdateMethods
     cfg.UpMeHttpUrl = chkURL.Checked
     cfg.UpMeHttpBasic = chkBasic.Checked
     cfg.UpMeHttpGD = chkGnudipH.Checked
+    cfg.UpMeHttpDynCom = chkDyncom.Checked
 
     cfg.RemoteDetect = chkRDetect.Checked
 
@@ -32,11 +34,12 @@ Public Class frmUpdateMethods
     If txtBaseUrl.Enabled AndAlso _
        Not ValidateBaseUrl() Then Exit Sub
 
-    If Not chkTSIG.Checked And _
-       Not chkGnudipN.Checked And _
-       Not chkURL.Checked And _
-       Not chkBasic.Checked And _
-       Not chkGnudipH.Checked Then
+    If Not chkTSIG.Checked And
+       Not chkGnudipN.Checked And
+       Not chkURL.Checked And
+       Not chkBasic.Checked And
+       Not chkGnudipH.Checked And
+       Not chkDyncom.Checked Then
       MessageBox.Show("At least one update method must be selected", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error)
       Exit Sub
     End If
@@ -59,14 +62,15 @@ Public Class frmUpdateMethods
     Me.Close()
   End Sub
 
-  Private Sub chkURL_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkURL.CheckedChanged, chkBasic.CheckedChanged, chkGnudipH.CheckedChanged, chkGnudipN.CheckedChanged, chkRDetect.CheckedChanged
+  Private Sub chkURL_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkURL.CheckedChanged, chkBasic.CheckedChanged, chkGnudipH.CheckedChanged, chkGnudipN.CheckedChanged, chkRDetect.CheckedChanged, chkDyncom.CheckedChanged
     numPort.Enabled = chkGnudipN.Checked
     txtBaseUrl.Enabled = (chkBasic.Checked Or chkURL.Checked Or chkGnudipH.Checked Or chkRDetect.Checked)
-    btnShowFull.Enabled = (chkBasic.Checked Or chkURL.Checked Or chkGnudipH.Checked Or chkRDetect.Checked)
+    btnShowFull.Enabled = (chkBasic.Checked Or chkURL.Checked Or chkGnudipH.Checked Or chkRDetect.Checked Or chkDyncom.Checked)
   End Sub
 
   Private Sub btnShowFull_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnShowFull.Click
-    If Not ValidateBaseUrl() Then Exit Sub
+    If txtBaseUrl.Enabled AndAlso Not ValidateBaseUrl() Then Exit Sub
+
     Dim frm = New frmShowURLs
     Dim x = txtBaseUrl.Text.Trim
     If chkURL.Checked Then
@@ -96,13 +100,22 @@ Public Class frmUpdateMethods
       frm.btnCopy3.Enabled = False
     End If
 
-    If chkRDetect.Checked Then
-      frm.txtURL4.Text = x & "myip"
+    If chkDyncom.Checked Then
+      frm.txtURL4.Text = "http://*/nic/update?myip=<ip-address>&offline=<offline>"
     Else
       frm.Label4.Enabled = False
       frm.txtURL4.Enabled = False
       frm.txtURL4.BackColor = Drawing.SystemColors.Control
       frm.btnCopy4.Enabled = False
+    End If
+
+    If chkRDetect.Checked Then
+      frm.txtURL5.Text = x & "myip"
+    Else
+      frm.Label5.Enabled = False
+      frm.txtURL5.Enabled = False
+      frm.txtURL5.BackColor = Drawing.SystemColors.Control
+      frm.btnCopy5.Enabled = False
     End If
 
     frm.ShowDialog()

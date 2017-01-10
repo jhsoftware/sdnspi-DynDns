@@ -22,19 +22,20 @@ Partial Class frmUpdateMethods
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-    Me.btnOK = New System.Windows.Forms.Button
-    Me.btnCancel = New System.Windows.Forms.Button
-    Me.numPort = New System.Windows.Forms.NumericUpDown
-    Me.chkGnudipN = New System.Windows.Forms.CheckBox
-    Me.chkGnudipH = New System.Windows.Forms.CheckBox
-    Me.chkBasic = New System.Windows.Forms.CheckBox
-    Me.chkURL = New System.Windows.Forms.CheckBox
-    Me.txtBaseUrl = New System.Windows.Forms.TextBox
-    Me.GroupBox1 = New System.Windows.Forms.GroupBox
-    Me.Label1 = New System.Windows.Forms.Label
-    Me.btnShowFull = New System.Windows.Forms.Button
-    Me.chkRDetect = New System.Windows.Forms.CheckBox
-    Me.chkTSIG = New System.Windows.Forms.CheckBox
+    Me.btnOK = New System.Windows.Forms.Button()
+    Me.btnCancel = New System.Windows.Forms.Button()
+    Me.numPort = New System.Windows.Forms.NumericUpDown()
+    Me.chkGnudipN = New System.Windows.Forms.CheckBox()
+    Me.chkGnudipH = New System.Windows.Forms.CheckBox()
+    Me.chkBasic = New System.Windows.Forms.CheckBox()
+    Me.chkURL = New System.Windows.Forms.CheckBox()
+    Me.txtBaseUrl = New System.Windows.Forms.TextBox()
+    Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+    Me.Label1 = New System.Windows.Forms.Label()
+    Me.btnShowFull = New System.Windows.Forms.Button()
+    Me.chkRDetect = New System.Windows.Forms.CheckBox()
+    Me.chkTSIG = New System.Windows.Forms.CheckBox()
+    Me.chkDyncom = New System.Windows.Forms.CheckBox()
     CType(Me.numPort, System.ComponentModel.ISupportInitialize).BeginInit()
     Me.GroupBox1.SuspendLayout()
     Me.SuspendLayout()
@@ -42,7 +43,7 @@ Partial Class frmUpdateMethods
     'btnOK
     '
     Me.btnOK.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-    Me.btnOK.Location = New System.Drawing.Point(165, 310)
+    Me.btnOK.Location = New System.Drawing.Point(165, 333)
     Me.btnOK.Name = "btnOK"
     Me.btnOK.Size = New System.Drawing.Size(75, 23)
     Me.btnOK.TabIndex = 1
@@ -52,7 +53,7 @@ Partial Class frmUpdateMethods
     '
     Me.btnCancel.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
     Me.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel
-    Me.btnCancel.Location = New System.Drawing.Point(246, 310)
+    Me.btnCancel.Location = New System.Drawing.Point(246, 333)
     Me.btnCancel.Name = "btnCancel"
     Me.btnCancel.Size = New System.Drawing.Size(75, 23)
     Me.btnCancel.TabIndex = 2
@@ -113,19 +114,20 @@ Partial Class frmUpdateMethods
     'txtBaseUrl
     '
     Me.txtBaseUrl.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
     Me.txtBaseUrl.Enabled = False
-    Me.txtBaseUrl.Location = New System.Drawing.Point(18, 220)
+    Me.txtBaseUrl.Location = New System.Drawing.Point(18, 243)
     Me.txtBaseUrl.Name = "txtBaseUrl"
     Me.txtBaseUrl.Size = New System.Drawing.Size(273, 20)
-    Me.txtBaseUrl.TabIndex = 8
+    Me.txtBaseUrl.TabIndex = 9
     Me.txtBaseUrl.Text = "http://"
     '
     'GroupBox1
     '
     Me.GroupBox1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-                Or System.Windows.Forms.AnchorStyles.Left) _
-                Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+    Me.GroupBox1.Controls.Add(Me.chkDyncom)
     Me.GroupBox1.Controls.Add(Me.Label1)
     Me.GroupBox1.Controls.Add(Me.txtBaseUrl)
     Me.GroupBox1.Controls.Add(Me.btnShowFull)
@@ -139,7 +141,7 @@ Partial Class frmUpdateMethods
     Me.GroupBox1.Location = New System.Drawing.Point(12, 12)
     Me.GroupBox1.Name = "GroupBox1"
     Me.GroupBox1.Padding = New System.Windows.Forms.Padding(15, 10, 15, 15)
-    Me.GroupBox1.Size = New System.Drawing.Size(309, 292)
+    Me.GroupBox1.Size = New System.Drawing.Size(309, 315)
     Me.GroupBox1.TabIndex = 0
     Me.GroupBox1.TabStop = False
     Me.GroupBox1.Text = "Update methods:"
@@ -147,20 +149,20 @@ Partial Class frmUpdateMethods
     'Label1
     '
     Me.Label1.AutoSize = True
-    Me.Label1.Location = New System.Drawing.Point(18, 204)
+    Me.Label1.Location = New System.Drawing.Point(18, 227)
     Me.Label1.Margin = New System.Windows.Forms.Padding(3, 15, 3, 0)
     Me.Label1.Name = "Label1"
     Me.Label1.Size = New System.Drawing.Size(148, 13)
-    Me.Label1.TabIndex = 7
+    Me.Label1.TabIndex = 8
     Me.Label1.Text = "Base URL for HTTP services:"
     '
     'btnShowFull
     '
     Me.btnShowFull.Enabled = False
-    Me.btnShowFull.Location = New System.Drawing.Point(18, 246)
+    Me.btnShowFull.Location = New System.Drawing.Point(18, 269)
     Me.btnShowFull.Name = "btnShowFull"
     Me.btnShowFull.Size = New System.Drawing.Size(117, 23)
-    Me.btnShowFull.TabIndex = 9
+    Me.btnShowFull.TabIndex = 10
     Me.btnShowFull.Text = "Show full URLs..."
     Me.btnShowFull.UseVisualStyleBackColor = True
     '
@@ -168,13 +170,13 @@ Partial Class frmUpdateMethods
     '
     Me.chkRDetect.AutoSize = True
     Me.chkRDetect.CheckAlign = System.Drawing.ContentAlignment.TopLeft
-    Me.chkRDetect.Location = New System.Drawing.Point(18, 156)
+    Me.chkRDetect.Location = New System.Drawing.Point(18, 179)
     Me.chkRDetect.Margin = New System.Windows.Forms.Padding(3, 18, 3, 3)
     Me.chkRDetect.Name = "chkRDetect"
     Me.chkRDetect.Size = New System.Drawing.Size(246, 30)
-    Me.chkRDetect.TabIndex = 6
-    Me.chkRDetect.Text = "Enable remote IP detection service" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(simple web service returning client IP addre" & _
-        "ss)"
+    Me.chkRDetect.TabIndex = 7
+    Me.chkRDetect.Text = "Enable remote IP detection service" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "(simple web service returning client IP addre" &
+    "ss)"
     Me.chkRDetect.UseVisualStyleBackColor = True
     '
     'chkTSIG
@@ -189,13 +191,23 @@ Partial Class frmUpdateMethods
     Me.chkTSIG.Text = "DNS - TSIG signed dynamic updates"
     Me.chkTSIG.UseVisualStyleBackColor = True
     '
+    'chkDyncom
+    '
+    Me.chkDyncom.AutoSize = True
+    Me.chkDyncom.Location = New System.Drawing.Point(18, 141)
+    Me.chkDyncom.Name = "chkDyncom"
+    Me.chkDyncom.Size = New System.Drawing.Size(257, 17)
+    Me.chkDyncom.TabIndex = 6
+    Me.chkDyncom.Text = "HTTP - Dyn.com URL format (Basic HTTP auth.)"
+    Me.chkDyncom.UseVisualStyleBackColor = True
+    '
     'frmUpdateMethods
     '
     Me.AcceptButton = Me.btnOK
     Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
     Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
     Me.CancelButton = Me.btnCancel
-    Me.ClientSize = New System.Drawing.Size(333, 345)
+    Me.ClientSize = New System.Drawing.Size(333, 368)
     Me.Controls.Add(Me.GroupBox1)
     Me.Controls.Add(Me.btnCancel)
     Me.Controls.Add(Me.btnOK)
@@ -225,5 +237,5 @@ Partial Class frmUpdateMethods
   Friend WithEvents chkTSIG As System.Windows.Forms.CheckBox
   Friend WithEvents chkRDetect As System.Windows.Forms.CheckBox
   Friend WithEvents Label1 As System.Windows.Forms.Label
-
+  Friend WithEvents chkDyncom As CheckBox
 End Class

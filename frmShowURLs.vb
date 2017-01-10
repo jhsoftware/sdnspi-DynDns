@@ -19,6 +19,9 @@ Public Class frmShowURLs
   Private Sub btnCopy4_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnCopy4.Click
     MyCopy(txtURL4)
   End Sub
+  Private Sub btnCopy5_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnCopy5.Click
+    MyCopy(txtURL5)
+  End Sub
 
   Private Sub MyCopy(ByVal txt As TextBox)
     txt.SelectAll()

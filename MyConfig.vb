@@ -12,13 +12,14 @@ Friend Class MyConfig
   Public UpMeHttpBasic As Boolean = False
   Public UpMeHttpUrl As Boolean = False
   Public UpMeHttpGD As Boolean = False
+  Public UpMeHttpDynCom As Boolean = False
   Public GnuDIPPort As Integer = 3495
 
   Public RemoteDetect As Boolean = False
 
   Public BaseURL As String = "http://"
 
-  Friend Function AnyHTTPServices() As Boolean
+  Friend Function BaseUrlInUse() As Boolean
     Return (UpMeHttpBasic Or UpMeHttpUrl Or UpMeHttpGD Or RemoteDetect)
   End Function
 
@@ -32,6 +33,7 @@ Friend Class MyConfig
     root.SetAttrBool("UpMeHTTPURL", UpMeHttpUrl)
     root.SetAttrBool("UpMeHTTPBasic", UpMeHttpBasic)
     root.SetAttrBool("UpMeHTTPGnuDIP", UpMeHttpGD)
+    root.SetAttrBool("UpMeHTTPDynCom", UpMeHttpDynCom)
     root.SetAttrInt("GNUDIPPort", GnuDIPPort)
     root.SetAttrBool("RemoteDetect", RemoteDetect)
     root.SetAttribute("BaseURL", BaseURL)
@@ -55,6 +57,7 @@ Friend Class MyConfig
       .UpMeHttpUrl = root.GetAttrBool("UpMeHTTPURL")
       .UpMeHttpBasic = root.GetAttrBool("UpMeHTTPBasic")
       .UpMeHttpGD = root.GetAttrBool("UpMeHTTPGnuDIP")
+      .UpMeHttpDynCom = root.GetAttrBool("UpMeHTTPDynCom")
       .GnuDIPPort = root.GetAttrInt("GNUDIPPort", 3495)
       .RemoteDetect = root.GetAttrBool("RemoteDetect")
       .BaseURL = root.GetAttribute("BaseURL")

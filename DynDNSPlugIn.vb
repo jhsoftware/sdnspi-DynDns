@@ -50,7 +50,7 @@ Public Class DynDNSPlugIn
     With GetPlugInTypeInfo
       .Name = "DynDNS Service"
       .Description = "Accepts remote updates from DynDNS clients"
-      .InfoURL = "http://www.simpledns.com/kb.asp?kbid=1267"
+      .InfoURL = "http://simpledns.com/plugin-dyndns"
       .ConfigFile = True
       .MultiThreaded = False
     End With
@@ -73,7 +73,7 @@ Public Class DynDNSPlugIn
       errorMsg = "Another plug-in instance is using the same host name suffix"
       Return True
     End If
-    If c1.AnyHTTPServices AndAlso c2.AnyHTTPServices AndAlso _
+    If c1.BaseUrlInUse AndAlso c2.BaseUrlInUse AndAlso
        c1.BaseURL.ToLower = c2.BaseURL.ToLower Then
       errorMsg = "Another plug-in instance is using the same base URL for HTTP services"
       Return True
@@ -130,8 +130,8 @@ Public Class DynDNSPlugIn
         user.CurTTL = elem.GetAttrInt("TTL", DefaultTTL)
         user.LastUpdate = elem.GetAttrDateTime("LastUpdate", #1/1/1970#)
         user.Offline = elem.GetAttrBool("Offline")
-        If Not user.Disabled AndAlso _
-           Not user.Offline AndAlso _
+        If Not user.Disabled AndAlso
+           Not user.Offline AndAlso
            user.CurIP IsNot Nothing Then UserByIP.Add(user.CurIP, user)
       End If
     Next
@@ -166,19 +166,21 @@ Public Class DynDNSPlugIn
         RaiseEvent LogLine("GnuDIP socket not started - Error: " & ex.Message)
       End Try
     End If
-    If Cfg.AnyHTTPServices Then
+    If Cfg.BaseUrlInUse Or Cfg.UpMeHttpDynCom Then
       hli = New Net.HttpListener
       hli.IgnoreWriteExceptions = True
       hli.AuthenticationSchemes = Net.AuthenticationSchemes.Anonymous Or Net.AuthenticationSchemes.Basic
       Try
-        hli.Prefixes.Add(Cfg.BaseURL)
+        If Cfg.BaseUrlInUse Then hli.Prefixes.Add(Cfg.BaseURL)
+        If Cfg.UpMeHttpDynCom Then hli.Prefixes.Add("http://*/nic/")
         hli.Start()
         hli.BeginGetContext(AddressOf HLI_CallBack, hli)
       Catch ex As Exception
         RaiseEvent LogLine("HTTP listener not started - Error: " & ex.Message)
         Exit Sub
       End Try
-      RaiseEvent LogLine("Listening for HTTP requests at " & Cfg.BaseURL)
+      If Cfg.BaseUrlInUse Then RaiseEvent LogLine("Listening for HTTP requests at " & Cfg.BaseURL)
+      If Cfg.UpMeHttpDynCom Then RaiseEvent LogLine("Listening for HTTP requests at http://*/nic/")
     End If
   End Sub
 
