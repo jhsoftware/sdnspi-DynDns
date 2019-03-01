@@ -123,8 +123,8 @@ Public Class frmUpdateMethods
 
   Private Function ValidateBaseUrl() As Boolean
     Dim x = txtBaseUrl.Text.Trim
-    If Not x.StartsWith("http://") Then
-      MessageBox.Show("Base URL must start with http://", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error)
+    If Not (x.StartsWith("http://") OrElse x.StartsWith("https://")) Then
+      MessageBox.Show("Base URL must start with http:// or https://", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error)
       txtBaseUrl.Focus()
       Return False
     End If
