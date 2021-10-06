@@ -4,11 +4,11 @@ Public Class frmHostName
 
   Friend FromList As AERListBox
 
-  Private Sub OK_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnOK.Click
+  Private Sub OK_Button_Click(sender As System.Object, e As System.EventArgs) Handles btnOK.Click
     Dim x = txtHostName.Text.Trim
     If x.Length = 0 Then Exit Sub
-    Dim hn As JHSoftware.SimpleDNS.Plugin.DomainName = Nothing
-    If Not JHSoftware.SimpleDNS.Plugin.DomainName.TryParse(x, hn) Then
+    Dim hn As DomName = Nothing
+    If Not DomName.TryParse(x, hn) Then
       MessageBox.Show("Invalid host name", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error)
       txtHostName.Focus()
       Exit Sub
@@ -35,9 +35,9 @@ Public Class frmHostName
     Me.Close()
   End Sub
 
-  Private Function ItemsEqual(ByVal item1 As Object, ByVal item2 As Object) As Boolean
-    If DirectCast(item1, JHSoftware.SimpleDNS.Plugin.DomainName) = _
-       DirectCast(item2, JHSoftware.SimpleDNS.Plugin.DomainName) Then
+  Private Function ItemsEqual(item1 As Object, item2 As Object) As Boolean
+    If DirectCast(item1, DomName) =
+       DirectCast(item2, DomName) Then
       MessageBox.Show("Host name is already in the list", Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error)
       txtHostName.Focus()
       Return True
@@ -45,7 +45,7 @@ Public Class frmHostName
     Return False
   End Function
 
-  Private Sub Cancel_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnCancel.Click
+  Private Sub Cancel_Button_Click(sender As System.Object, e As System.EventArgs) Handles btnCancel.Click
     Me.DialogResult = System.Windows.Forms.DialogResult.Cancel
     Me.Close()
   End Sub

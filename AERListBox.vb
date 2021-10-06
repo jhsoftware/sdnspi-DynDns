@@ -3,11 +3,11 @@
 Public Class AERListBox
   Private Adding As Boolean
 
-  Public Event EditItem(ByVal curItem As Object)
+  Public Event EditItem(curItem As Object)
 
-  Public Delegate Function ItemsEqualDG(ByVal item1 As Object, ByVal item2 As Object) As Boolean
+  Public Delegate Function ItemsEqualDG(item1 As Object, item2 As Object) As Boolean
 
-  Public Function CompleteEditItem(ByVal newItem As Object, ByVal itemsEqual As ItemsEqualDG) As Boolean
+  Public Function CompleteEditItem(newItem As Object, itemsEqual As ItemsEqualDG) As Boolean
     For i = 0 To ListBox1.Items.Count - 1
       If Not Adding AndAlso ListBox1.SelectedIndex = i Then Continue For
       If itemsEqual(newItem, ListBox1.Items(i)) Then Return False
@@ -30,7 +30,7 @@ Public Class AERListBox
     Get
       Return ListBox1.Sorted
     End Get
-    Set(ByVal value As Boolean)
+    Set(value As Boolean)
       ListBox1.Sorted = value
     End Set
   End Property
@@ -39,27 +39,27 @@ Public Class AERListBox
     Return ListBox1.Items
   End Function
 
-  Private Sub btnAdd_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnAdd.Click
+  Private Sub btnAdd_Click(sender As Object, e As System.EventArgs) Handles btnAdd.Click
     Adding = True
     RaiseEvent EditItem(Nothing)
   End Sub
 
-  Private Sub btnEdit_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnEdit.Click, ListBox1.DoubleClick
+  Private Sub btnEdit_Click(sender As Object, e As System.EventArgs) Handles btnEdit.Click, ListBox1.DoubleClick
     If ListBox1.SelectedIndex < 0 Then Exit Sub
     Adding = False
     RaiseEvent EditItem(ListBox1.SelectedItem)
   End Sub
 
-  Private Sub btnRemove_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnRemove.Click
+  Private Sub btnRemove_Click(sender As Object, e As System.EventArgs) Handles btnRemove.Click
     If ListBox1.SelectedIndex < 0 Then Exit Sub
     ListBox1.Items.RemoveAt(ListBox1.SelectedIndex)
   End Sub
 
-  Private Sub ListBox1_KeyUp(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles ListBox1.KeyUp
+  Private Sub ListBox1_KeyUp(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles ListBox1.KeyUp
     If e.KeyData = Keys.Delete Then btnRemove_Click(Nothing, Nothing)
   End Sub
 
-  Private Sub ListBox1_SelectedIndexChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles ListBox1.SelectedIndexChanged
+  Private Sub ListBox1_SelectedIndexChanged(sender As Object, e As System.EventArgs) Handles ListBox1.SelectedIndexChanged
     btnEdit.Enabled = (ListBox1.SelectedIndex >= 0)
     btnRemove.Enabled = (ListBox1.SelectedIndex >= 0)
   End Sub

@@ -2,7 +2,7 @@
 
 Public Class frmUpdateMethods
 
-  Friend Sub LoadConfig(ByVal cfg As MyConfig)
+  Friend Sub LoadConfig(cfg As MyConfig)
     chkTSIG.Checked = cfg.UpMeTsig
     chkGnudipN.Checked = cfg.UpMeGnuDIP
     numPort.Value = cfg.GnuDIPPort
@@ -16,7 +16,7 @@ Public Class frmUpdateMethods
     txtBaseUrl.Text = cfg.BaseURL
   End Sub
 
-  Friend Sub SaveToConfig(ByVal cfg As MyConfig)
+  Friend Sub SaveToConfig(cfg As MyConfig)
     cfg.UpMeTsig = chkTSIG.Checked
     cfg.UpMeGnuDIP = chkGnudipN.Checked
     cfg.GnuDIPPort = CInt(numPort.Value)
@@ -30,8 +30,8 @@ Public Class frmUpdateMethods
     cfg.BaseURL = txtBaseUrl.Text.Trim
   End Sub
 
-  Private Sub OK_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnOK.Click
-    If txtBaseUrl.Enabled AndAlso _
+  Private Sub OK_Button_Click(sender As System.Object, e As System.EventArgs) Handles btnOK.Click
+    If txtBaseUrl.Enabled AndAlso
        Not ValidateBaseUrl() Then Exit Sub
 
     If Not chkTSIG.Checked And
@@ -46,8 +46,8 @@ Public Class frmUpdateMethods
 
     If txtBaseUrl.Enabled Then
       If Not Net.HttpListener.IsSupported Then
-        MessageBox.Show("The HTTP services are not supported on this Windows version" & vbCrLf & _
-                        "(requires Windows XP SP2 / Windows Server 2003 or later).", _
+        MessageBox.Show("The HTTP services are not supported on this Windows version" & vbCrLf &
+                        "(requires Windows XP SP2 / Windows Server 2003 or later).",
                         Me.Text, MessageBoxButtons.OK, MessageBoxIcon.Error)
         Exit Sub
       End If
@@ -57,18 +57,18 @@ Public Class frmUpdateMethods
     Me.Close()
   End Sub
 
-  Private Sub Cancel_Button_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnCancel.Click
+  Private Sub Cancel_Button_Click(sender As System.Object, e As System.EventArgs) Handles btnCancel.Click
     Me.DialogResult = System.Windows.Forms.DialogResult.Cancel
     Me.Close()
   End Sub
 
-  Private Sub chkURL_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkURL.CheckedChanged, chkBasic.CheckedChanged, chkGnudipH.CheckedChanged, chkGnudipN.CheckedChanged, chkRDetect.CheckedChanged, chkDyncom.CheckedChanged
+  Private Sub chkURL_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkURL.CheckedChanged, chkBasic.CheckedChanged, chkGnudipH.CheckedChanged, chkGnudipN.CheckedChanged, chkRDetect.CheckedChanged, chkDyncom.CheckedChanged
     numPort.Enabled = chkGnudipN.Checked
     txtBaseUrl.Enabled = (chkBasic.Checked Or chkURL.Checked Or chkGnudipH.Checked Or chkRDetect.Checked)
     btnShowFull.Enabled = (chkBasic.Checked Or chkURL.Checked Or chkGnudipH.Checked Or chkRDetect.Checked Or chkDyncom.Checked)
   End Sub
 
-  Private Sub btnShowFull_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnShowFull.Click
+  Private Sub btnShowFull_Click(sender As System.Object, e As System.EventArgs) Handles btnShowFull.Click
     If txtBaseUrl.Enabled AndAlso Not ValidateBaseUrl() Then Exit Sub
 
     Dim frm = New frmShowURLs

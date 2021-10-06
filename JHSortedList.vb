@@ -8,22 +8,22 @@
     REM default constructor
   End Sub
 
-  Friend Sub New(ByVal comparer As IComparer(Of T))
+  Friend Sub New(comparer As IComparer(Of T))
     Me.comparer = comparer
   End Sub
 
-  Private Function Compare(ByVal item1 As T, ByVal item2 As T) As Integer
+  Private Function Compare(item1 As T, item2 As T) As Integer
     If comparer IsNot Nothing Then Return comparer.Compare(item1, item2)
     If TypeOf item1 Is IComparable(Of T) Then Return DirectCast(item1, IComparable(Of T)).CompareTo(item2)
     If TypeOf item1 Is IComparable Then Return DirectCast(item1, IComparable).CompareTo(item2)
     Throw New Exception("No comparer found")
   End Function
 
-  Friend Sub ForEach(ByVal act As System.Action(Of T))
+  Friend Sub ForEach(act As System.Action(Of T))
     myList.ForEach(act)
   End Sub
 
-  Friend Function ItemsEqual(ByVal other As JHSortedList(Of T)) As Boolean
+  Friend Function ItemsEqual(other As JHSortedList(Of T)) As Boolean
     If myList.Count <> other.myList.Count Then Return False
     For i = 0 To myList.Count - 1
       If Compare(myList(i), other.myList(i)) <> 0 Then Return False
@@ -31,7 +31,7 @@
     Return True
   End Function
 
-  Public Sub Add(ByVal item As T) Implements System.Collections.Generic.ICollection(Of T).Add
+  Public Sub Add(item As T) Implements System.Collections.Generic.ICollection(Of T).Add
     Dim l As Integer = 0
     If myList.Count > 0 Then
       Dim h As Integer = myList.Count - 1
@@ -49,7 +49,7 @@
     myList.Clear()
   End Sub
 
-  Public Sub CopyTo(ByVal toArray() As T, ByVal arrayIndex As Integer) Implements System.Collections.Generic.ICollection(Of T).CopyTo
+  Public Sub CopyTo(toArray() As T, arrayIndex As Integer) Implements System.Collections.Generic.ICollection(Of T).CopyTo
     myList.CopyTo(toArray, arrayIndex)
   End Sub
 
@@ -65,22 +65,22 @@
     End Get
   End Property
 
-  Public Function Remove(ByVal item As T) As Boolean Implements System.Collections.Generic.ICollection(Of T).Remove
+  Public Function Remove(item As T) As Boolean Implements System.Collections.Generic.ICollection(Of T).Remove
     Dim i As Integer = IndexOf(item)
     If i < 0 Then Return False
     RemoveAt(i)
     Return True
   End Function
 
-  Public Sub RemoveAt(ByVal index As Integer) Implements System.Collections.Generic.IList(Of T).RemoveAt
+  Public Sub RemoveAt(index As Integer) Implements System.Collections.Generic.IList(Of T).RemoveAt
     myList.RemoveAt(index)
   End Sub
 
-  Public Function Contains(ByVal item As T) As Boolean Implements System.Collections.Generic.ICollection(Of T).Contains
+  Public Function Contains(item As T) As Boolean Implements System.Collections.Generic.ICollection(Of T).Contains
     Return (IndexOf(item) >= 0)
   End Function
 
-  Public Function IndexOf(ByVal item As T) As Integer Implements System.Collections.Generic.IList(Of T).IndexOf
+  Public Function IndexOf(item As T) As Integer Implements System.Collections.Generic.IList(Of T).IndexOf
     If myList.Count = 0 Then Return -1
     Dim l As Integer = 0
     Dim h As Integer = myList.Count - 1
@@ -92,17 +92,17 @@
     If Compare(item, myList(l)) = 0 Then Return l Else Return -1
   End Function
 
-  Delegate Function CompareKeyToItem(Of TKey, TItem)(ByVal key As TKey, ByVal item As TItem) As Integer
+  Delegate Function CompareKeyToItem(Of TKey, TItem)(key As TKey, item As TItem) As Integer
 
-  Public Sub Insert(ByVal index As Integer, ByVal item As T) Implements System.Collections.Generic.IList(Of T).Insert
+  Public Sub Insert(index As Integer, item As T) Implements System.Collections.Generic.IList(Of T).Insert
     Throw New NotImplementedException
   End Sub
 
-  Default Public Property Item(ByVal index As Integer) As T Implements System.Collections.Generic.IList(Of T).Item
+  Default Public Property Item(index As Integer) As T Implements System.Collections.Generic.IList(Of T).Item
     Get
       Return myList(index)
     End Get
-    Set(ByVal value As T)
+    Set(value As T)
       Throw New NotImplementedException
     End Set
   End Property
@@ -127,7 +127,7 @@ Friend Class JHSortedList(Of TKey, TValue)
   Private Class MyComparer
     Implements IComparer(Of Collections.Generic.KeyValuePair(Of TKey, TValue))
     Public comparer As IComparer(Of TKey)
-    Public Function Compare(ByVal x As System.Collections.Generic.KeyValuePair(Of TKey, TValue), ByVal y As System.Collections.Generic.KeyValuePair(Of TKey, TValue)) As Integer Implements System.Collections.Generic.IComparer(Of System.Collections.Generic.KeyValuePair(Of TKey, TValue)).Compare
+    Public Function Compare(x As System.Collections.Generic.KeyValuePair(Of TKey, TValue), y As System.Collections.Generic.KeyValuePair(Of TKey, TValue)) As Integer Implements System.Collections.Generic.IComparer(Of System.Collections.Generic.KeyValuePair(Of TKey, TValue)).Compare
       If comparer IsNot Nothing Then Return comparer.Compare(x.Key, y.Key)
       If TypeOf x.Key Is IComparable(Of TKey) Then Return DirectCast(x.Key, IComparable(Of TKey)).CompareTo(y.Key)
       If TypeOf x.Key Is IComparable Then Return DirectCast(x.Key, IComparable).CompareTo(y.Key)
@@ -140,19 +140,19 @@ Friend Class JHSortedList(Of TKey, TValue)
     myList = New JHSortedList(Of KeyValuePair(Of TKey, TValue))(cp)
   End Sub
 
-  Sub New(ByVal comparer As IComparer(Of TKey))
+  Sub New(comparer As IComparer(Of TKey))
     Dim cp As IComparer(Of Collections.Generic.KeyValuePair(Of TKey, TValue)) = New MyComparer With {.comparer = comparer}
     myList = New JHSortedList(Of KeyValuePair(Of TKey, TValue))(cp)
     Me.comparer = comparer
   End Sub
 
-  Default ReadOnly Property Item(ByVal index As Integer) As TValue
+  Default ReadOnly Property Item(index As Integer) As TValue
     Get
       Return myList(index).Value
     End Get
   End Property
 
-  Public Sub Add(ByVal key As TKey, ByVal value As TValue)
+  Public Sub Add(key As TKey, value As TValue)
     myList.Add(New KeyValuePair(Of TKey, TValue)(key, value))
   End Sub
 
@@ -160,7 +160,7 @@ Friend Class JHSortedList(Of TKey, TValue)
     myList.Clear()
   End Sub
 
-  Public Function IndexOf(ByVal key As TKey) As Integer
+  Public Function IndexOf(key As TKey) As Integer
     If myList.Count = 0 Then Return -1
     Dim l As Integer = 0
     Dim h As Integer = myList.Count - 1
@@ -172,7 +172,7 @@ Friend Class JHSortedList(Of TKey, TValue)
     If KeyCompare(key, myList(l).Key) = 0 Then Return l Else Return -1
   End Function
 
-  Public Function IndexOf(ByVal key As TKey, ByVal value As TValue, Optional ByVal ve As ValueEquals = Nothing) As Integer
+  Public Function IndexOf(key As TKey, value As TValue, Optional ve As ValueEquals = Nothing) As Integer
     If ve Is Nothing Then ve = Function(v1 As TValue, v2 As TValue) Object.ReferenceEquals(v1, v2)
     Dim i = IndexOf(key)
     If i < 0 Then Return i
@@ -184,9 +184,9 @@ Friend Class JHSortedList(Of TKey, TValue)
     Return -1
   End Function
 
-  Delegate Function ValueEquals(ByVal val1 As TValue, ByVal val2 As TValue) As Boolean
+  Delegate Function ValueEquals(val1 As TValue, val2 As TValue) As Boolean
 
-  Private Function KeyCompare(ByVal x As TKey, ByVal y As TKey) As Integer
+  Private Function KeyCompare(x As TKey, y As TKey) As Integer
     If comparer IsNot Nothing Then Return comparer.Compare(x, y)
     If TypeOf x Is IComparable(Of TKey) Then Return DirectCast(x, IComparable(Of TKey)).CompareTo(y)
     If TypeOf x Is IComparable Then Return DirectCast(x, IComparable).CompareTo(y)
@@ -199,12 +199,12 @@ Friend Class JHSortedList(Of TKey, TValue)
     End Get
   End Property
 
-  Public Sub Remove(ByVal key As TKey, ByVal value As TValue, Optional ByVal ve As ValueEquals = Nothing)
+  Public Sub Remove(key As TKey, value As TValue, Optional ve As ValueEquals = Nothing)
     Dim i = IndexOf(key, value, ve)
     If i >= 0 Then myList.RemoveAt(i)
   End Sub
 
-  Public Sub RemoveAt(ByVal index As Integer)
+  Public Sub RemoveAt(index As Integer)
     myList.RemoveAt(index)
   End Sub
 

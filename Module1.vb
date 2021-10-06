@@ -10,7 +10,7 @@
     SuccessOffline = 2
   End Enum
 
-  Friend Function BytesToHex(ByVal ba As Byte()) As String
+  Friend Function BytesToHex(ba As Byte()) As String
     Dim rv(ba.Length * 2 - 1) As Char
     For i = 0 To ba.Length - 1
       rv(i << 1) = "0123456789abcdef"(ba(i) >> 4)
@@ -27,7 +27,7 @@
     Return rv
   End Function
 
-  Friend Function MakeGnuDIPPass(ByVal userPW As String, ByVal salt As String) As String
+  Friend Function MakeGnuDIPPass(userPW As String, salt As String) As String
     '    Digest the user's password using the MD5 digest message digest algorithm. 
     'Convert the digest value (which is a binary value) to its hexadecimal character 
     'string representation (characters 0-9 and lower case a-f). 
@@ -40,17 +40,17 @@
     Return BytesToHex(md5.ComputeHash(System.Text.Encoding.ASCII.GetBytes(x)))
   End Function
 
-  Friend Function IPisPrivate(ByVal ip As JHSoftware.SimpleDNS.Plugin.IPAddressV4) As Boolean
+  Friend Function IPisPrivate(ip As SdnsIPv4) As Boolean
     Dim ba = ip.GetBytes
     If ba(0) = 10 Then Return True
     If ba(0) = 172 AndAlso (ba(1) >= 16 And ba(1) < 32) Then Return True
     If ba(0) = 192 AndAlso ba(1) = 168 Then Return True
     If ba(0) = 169 AndAlso ba(1) = 254 Then Return True
-    If ip = JHSoftware.SimpleDNS.Plugin.IPAddressV4.Loopback Then Return True
+    If ip = SdnsIPv4.Loopback Then Return True
     Return False
   End Function
 
-  Friend Function TryIPFromDom(ByVal dom As JHSoftware.SimpleDNS.Plugin.DomainName, ByRef IP As UInt32) As Boolean
+  Friend Function TryIPFromDom(dom As DomName, ByRef IP As UInt32) As Boolean
     If dom.SegmentCount < 5 Then Return False
     Dim ba = dom.GetBytes
     Dim p = 0

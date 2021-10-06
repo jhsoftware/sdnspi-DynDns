@@ -34,9 +34,9 @@
   End Sub
 
   Private Sub ProcDDNS()
-    Dim userID As JHSoftware.SimpleDNS.Plugin.DomainName = Nothing
+    Dim userID As DomName = Nothing
     Dim user As MyConfig.User = Nothing
-    Dim ipAddr As JHSoftware.SimpleDNS.Plugin.IPAddressV4 = Nothing
+    Dim ipAddr As SdnsIPv4 = Nothing
     Dim ttl As Integer
     Dim x As String
     Dim upMethod As String
@@ -57,9 +57,9 @@
          Not TypeOf ctx.User.Identity Is Net.HttpListenerBasicIdentity Then Send401() : Exit Sub
 
       With DirectCast(ctx.User.Identity, Net.HttpListenerBasicIdentity)
-        If Not JHSoftware.SimpleDNS.Plugin.DomainName.TryParse(.Name, userID) OrElse _
-           Not plugin.Cfg.Users.TryGetValue(userID, user) OrElse _
-           user.Disabled OrElse _
+        If Not DomName.TryParse(.Name, userID) OrElse
+           Not plugin.Cfg.Users.TryGetValue(userID, user) OrElse
+           user.Disabled OrElse
            user.Password <> .Password Then Send401() : Exit Sub
       End With
 
@@ -68,7 +68,7 @@
       If Not plugin.Cfg.UpMeHttpUrl Then SendError("URL authentication update method is not enabled") : Exit Sub
       x = ctx.Request.QueryString("user")
       If String.IsNullOrEmpty(x) OrElse x.Trim.Length = 0 Then SendError("No user ID specified") : Exit Sub
-      If Not JHSoftware.SimpleDNS.Plugin.DomainName.TryParse(x.Trim, userID) OrElse _
+      If Not DomName.TryParse(x.Trim, userID) OrElse
          userID.SegmentCount <> 1 Then SendError("Invalid user ID specified") : Exit Sub
       If Not plugin.Cfg.Users.TryGetValue(userID, user) Then SendError("Unknown user ID") : Exit Sub
       If user.Disabled Then SendError("User ID is disabled") : Exit Sub
@@ -80,7 +80,7 @@
 
     x = ctx.Request.QueryString("ip")
     If Not String.IsNullOrEmpty(x) Then
-      If Not JHSoftware.SimpleDNS.Plugin.IPAddressV4.TryParse(x.Trim, ipAddr) Then SendError("Invalid IP address") : Exit Sub
+      If Not SdnsIPv4.TryParse(x.Trim, ipAddr) Then SendError("Invalid IP address") : Exit Sub
     Else
       ipAddr = DetectIP()
     End If
@@ -98,7 +98,7 @@
       plugin.SetUserOffline(user, upMethod)
       SendOK("Offline")
     Else
-      plugin.PerformUpdate(user, ipAddr, ttl, upMethod)
+      Dim unused = plugin.PerformUpdate(user, ipAddr, ttl, upMethod)
       SendOK(ipAddr.ToString)
     End If
   End Sub
@@ -106,24 +106,24 @@
   Private Sub ProcDynCom()
     If Not plugin.Cfg.UpMeHttpDynCom Then SendError("Dyn.com update method is not enabled") : Exit Sub
 
-    Dim userID As JHSoftware.SimpleDNS.Plugin.DomainName = Nothing
+    Dim userID As DomName = Nothing
     Dim user As MyConfig.User = Nothing
     If ctx.User Is Nothing OrElse Not TypeOf ctx.User.Identity Is Net.HttpListenerBasicIdentity Then Send401() : Exit Sub
 
     With DirectCast(ctx.User.Identity, Net.HttpListenerBasicIdentity)
-      If Not JHSoftware.SimpleDNS.Plugin.DomainName.TryParse(.Name, userID) OrElse
+      If Not DomName.TryParse(.Name, userID) OrElse
              Not plugin.Cfg.Users.TryGetValue(userID, user) OrElse
              user.Disabled OrElse
              user.Password <> .Password Then Send401() : Exit Sub
     End With
 
-    Dim ipAddr As JHSoftware.SimpleDNS.Plugin.IPAddressV4 = Nothing
+    Dim ipAddr As SdnsIPv4 = Nothing
     Dim x As String
 
     x = ctx.Request.QueryString("myip")
     If Not String.IsNullOrEmpty(x) Then
       'When invalid IP is specified dyn.com uses client IP (tested 10 jan 2017) 
-      If Not JHSoftware.SimpleDNS.Plugin.IPAddressV4.TryParse(x.Trim, ipAddr) Then ipAddr = DetectIP()
+      If Not SdnsIPv4.TryParse(x.Trim, ipAddr) Then ipAddr = DetectIP()
     Else
       ipAddr = DetectIP()
     End If
@@ -132,7 +132,7 @@
     If Not String.IsNullOrEmpty(x) AndAlso x.ToUpper()(0) = "Y"c Then
       plugin.SetUserOffline(user, "HTTP - Dyn.com URL format")
     Else
-      plugin.PerformUpdate(user, ipAddr, DynDNSPlugIn.DefaultTTL, "HTTP - Dyn.com URL format")
+      Dim unused = plugin.PerformUpdate(user, ipAddr, DynDNSPlugIn.DefaultTTL, "HTTP - Dyn.com URL format")
     End If
 
     ctx.Response.ContentType = "text/plain"
@@ -171,11 +171,11 @@
     If sign <> GnuDIPSignSaltTime(salt, timeStr) Then _
           SendGnuDIPResult(GnuDIPResult.InvalidLogin, "", "Incorrect 'sign' value") : Exit Sub
 
-    Dim userID As JHSoftware.SimpleDNS.Plugin.DomainName = Nothing
+    Dim userID As DomName = Nothing
     Dim user As MyConfig.User = Nothing
     Dim x = ctx.Request.QueryString("user")
-    If String.IsNullOrEmpty(x) OrElse x.Trim.Length = 0 OrElse _
-       Not JHSoftware.SimpleDNS.Plugin.DomainName.TryParse(x.Trim, userID) OrElse _
+    If String.IsNullOrEmpty(x) OrElse x.Trim.Length = 0 OrElse
+       Not DomName.TryParse(x.Trim, userID) OrElse
        userID.SegmentCount <> 1 Then _
            SendGnuDIPResult(GnuDIPResult.InvalidLogin, "", "Invalid 'user' value") : Exit Sub
     If Not plugin.Cfg.Users.TryGetValue(userID, user) Then _
@@ -191,8 +191,8 @@
 
     x = ctx.Request.QueryString("domn")
     If Not String.IsNullOrEmpty(x) Then
-      Dim d As JHSoftware.SimpleDNS.Plugin.DomainName = Nothing
-      If Not JHSoftware.SimpleDNS.Plugin.DomainName.TryParse(x, d) Then _
+      Dim d As DomName = Nothing
+      If Not DomName.TryParse(x, d) Then _
             SendGnuDIPResult(GnuDIPResult.InvalidLogin, "", "Invalid 'domn' value") : Exit Sub
       If userID & plugin.Cfg.Suffix <> d Then _
             SendGnuDIPResult(GnuDIPResult.InvalidLogin, "", "User not allowed to update host name in 'domn' value") : Exit Sub
@@ -205,12 +205,12 @@
     If String.IsNullOrEmpty(reqc) OrElse (reqc <> "0" And reqc <> "1" And reqc <> "2") Then _
            SendGnuDIPResult(GnuDIPResult.InvalidLogin, "", "Invalid 'reqc' value") : Exit Sub
 
-    Dim ipAddr As JHSoftware.SimpleDNS.Plugin.IPAddressV4 = Nothing
+    Dim ipAddr As SdnsIPv4 = Nothing
     If reqc = "0" Then
       'the IP address to be registered, if the request code is "0" ("addr=") 
       x = ctx.Request.QueryString("addr")
-      If String.IsNullOrEmpty(x) OrElse _
-         Not JHSoftware.SimpleDNS.Plugin.IPAddressV4.TryParse(x, ipAddr) Then _
+      If String.IsNullOrEmpty(x) OrElse
+         Not SdnsIPv4.TryParse(x, ipAddr) Then _
             SendGnuDIPResult(GnuDIPResult.InvalidLogin, "", "Invalid 'addr' value") : Exit Sub
     ElseIf reqc = "2" Then
       ipAddr = DetectIP()
@@ -220,12 +220,12 @@
       plugin.SetUserOffline(user, "HTTP GnuDIP Auth")
       SendGnuDIPResult(GnuDIPResult.SuccessOffline, "", "OK")
     Else
-      plugin.PerformUpdate(user, ipAddr, DynDNSPlugIn.DefaultTTL, "HTTP GnuDIP Auth")
+      Dim unused = plugin.PerformUpdate(user, ipAddr, DynDNSPlugIn.DefaultTTL, "HTTP GnuDIP Auth")
       SendGnuDIPResult(GnuDIPResult.Success, If(reqc = "2", ipAddr.ToString, ""), "OK")
     End If
   End Sub
 
-  Private Function GnuDIPSignSaltTime(ByVal salt As String, ByVal timeStr As String) As String
+  Private Function GnuDIPSignSaltTime(salt As String, timeStr As String) As String
     Dim ba(salt.Length + timeStr.Length + plugin.GnuDIPKey.Length - 1) As Byte
     plugin.GnuDIPKey.CopyTo(ba, 0)
     System.Text.Encoding.ASCII.GetBytes(salt & timeStr).CopyTo(ba, plugin.GnuDIPKey.Length)
@@ -249,45 +249,45 @@
     ctx.Response.Close(System.Text.Encoding.ASCII.GetBytes(x), False)
   End Sub
 
-  Private Sub SendGnuDIPResult(ByVal result As GnuDIPResult, ByVal addr As String, ByVal msg As String)
-    Dim x = "<html>" & vbCrLf & _
-            "<head>" & vbCrLf & _
+  Private Sub SendGnuDIPResult(result As GnuDIPResult, addr As String, msg As String)
+    Dim x = "<html>" & vbCrLf &
+            "<head>" & vbCrLf &
             "<meta name=""retc"" content=""" & CInt(result) & """>" & vbCrLf
     If Not String.IsNullOrEmpty(addr) Then x &= "<meta name=""addr"" content=""" & addr & """>" & vbCrLf
-    x &= "<title>GnuDIP Result</title>" & vbCrLf & _
-            "</head>" & vbCrLf & _
-            "<body>" & vbCrLf & _
+    x &= "<title>GnuDIP Result</title>" & vbCrLf &
+            "</head>" & vbCrLf &
+            "<body>" & vbCrLf &
             "<h1>GnuDIP result: " & CInt(result) & "</h1>" & vbCrLf
     If Not String.IsNullOrEmpty(msg) Then x &= "<p>" & msg & "</p>" & vbCrLf
-    x &= "</body>" & vbCrLf & _
+    x &= "</body>" & vbCrLf &
             "</html>" & vbCrLf
     ctx.Response.Close(System.Text.Encoding.ASCII.GetBytes(x), False)
   End Sub
 
-  Sub SendError(ByVal errMsg As String)
+  Sub SendError(errMsg As String)
     ctx.Request.Headers.Add("X-DynDNS-Result", "FAIL")
-    Dim x = "<html>" & vbCrLf & _
-            "<head>" & vbCrLf & _
-            "<meta name=""DynDNS-Result"" content=""FAIL"">" & vbCrLf & _
-            "<title>DynDNS update ERROR</title>" & vbCrLf & _
-            "</head>" & vbCrLf & _
-            "<body>" & vbCrLf & _
-            "<h1>ERROR: " & errMsg & "</h1>" & vbCrLf & _
-            "</body>" & vbCrLf & _
+    Dim x = "<html>" & vbCrLf &
+            "<head>" & vbCrLf &
+            "<meta name=""DynDNS-Result"" content=""FAIL"">" & vbCrLf &
+            "<title>DynDNS update ERROR</title>" & vbCrLf &
+            "</head>" & vbCrLf &
+            "<body>" & vbCrLf &
+            "<h1>ERROR: " & errMsg & "</h1>" & vbCrLf &
+            "</body>" & vbCrLf &
             "</html>" & vbCrLf
     ctx.Response.Close(System.Text.Encoding.ASCII.GetBytes(x), False)
   End Sub
 
-  Sub SendOK(ByVal msg As String)
+  Sub SendOK(msg As String)
     ctx.Request.Headers.Add("X-DynDNS-Result", "OK")
-    Dim x = "<html>" & vbCrLf & _
-            "<head>" & vbCrLf & _
-            "<meta name=""DynDNS-Result"" content=""OK"">" & vbCrLf & _
-            "<title>DynDNS update OK</title>" & vbCrLf & _
-            "</head>" & vbCrLf & _
-            "<body>" & vbCrLf & _
-            "<h1>OK: " & msg & "</h1>" & vbCrLf & _
-            "</body>" & vbCrLf & _
+    Dim x = "<html>" & vbCrLf &
+            "<head>" & vbCrLf &
+            "<meta name=""DynDNS-Result"" content=""OK"">" & vbCrLf &
+            "<title>DynDNS update OK</title>" & vbCrLf &
+            "</head>" & vbCrLf &
+            "<body>" & vbCrLf &
+            "<h1>OK: " & msg & "</h1>" & vbCrLf &
+            "</body>" & vbCrLf &
             "</html>" & vbCrLf
     ctx.Response.Close(System.Text.Encoding.ASCII.GetBytes(x), False)
   End Sub
@@ -306,24 +306,24 @@
     ctx.Response.Close(ba, False)
   End Sub
 
-  Private Function DetectIP() As JHSoftware.SimpleDNS.Plugin.IPAddressV4
-    Dim rv As JHSoftware.SimpleDNS.Plugin.IPAddressV4 = Nothing
+  Private Function DetectIP() As SdnsIPv4
+    Dim rv As SdnsIPv4 = Nothing
 
     Dim x = ctx.Request.Headers("X-Forwarded-For")
-    If Not String.IsNullOrEmpty(x) AndAlso _
-       JHSoftware.SimpleDNS.Plugin.IPAddressV4.TryParse(x, rv) AndAlso _
-       rv.IPVersion = 4 AndAlso _
+    If Not String.IsNullOrEmpty(x) AndAlso
+       SdnsIPv4.TryParse(x, rv) AndAlso
+       rv.IPVersion = 4 AndAlso
        Not IPisPrivate(rv) Then Return rv
 
     x = ctx.Request.Headers("Client-IP")
-    If Not String.IsNullOrEmpty(x) AndAlso _
-       JHSoftware.SimpleDNS.Plugin.IPAddressV4.TryParse(x, rv) AndAlso _
+    If Not String.IsNullOrEmpty(x) AndAlso
+       SdnsIPv4.TryParse(x, rv) AndAlso
        Not IPisPrivate(rv) Then Return rv
 
     If ctx.Request.RemoteEndPoint.Address.AddressFamily = Net.Sockets.AddressFamily.InterNetwork Then
-      Return New JHSoftware.SimpleDNS.Plugin.IPAddressV4(ctx.Request.RemoteEndPoint.Address.GetAddressBytes)
+      Return New SdnsIPv4(ctx.Request.RemoteEndPoint.Address.GetAddressBytes)
     End If
 
-    Return JHSoftware.SimpleDNS.Plugin.IPAddressV4.Loopback
+    Return SdnsIPv4.Loopback
   End Function
 End Class

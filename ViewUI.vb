@@ -7,12 +7,12 @@
     lst.ListViewItemSorter = New MySorter
   End Sub
 
-  Private Sub ViewUI_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+  Private Sub ViewUI_Load(sender As Object, e As System.EventArgs) Handles Me.Load
     DirectCast(lst.ListViewItemSorter, MySorter).SortCols.Add(0)
     SendMsgToService(New Byte() {1})
   End Sub
 
-  Public Overrides Sub LoadLayout(ByVal layout As String)
+  Public Overrides Sub LoadLayout(layout As String)
     If String.IsNullOrEmpty(layout) Then Exit Sub
     Dim la = layout.Split("|"c)
     lst.Columns(0).Width = Integer.Parse(la(0))
@@ -43,12 +43,12 @@
     Return rv
   End Function
 
-  Public Overrides Sub MsgFromService(ByVal msg() As Byte)
+  Public Overrides Sub MsgFromService(msg() As Byte)
     Invoke(MFSDGDG, msg)
   End Sub
   Private MFSDGDG As MFSDG = New MFSDG(AddressOf MsgFromService2)
-  Private Delegate Sub MFSDG(ByVal msg() As Byte)
-  Private Sub MsgFromService2(ByVal msg() As Byte)
+  Private Delegate Sub MFSDG(msg() As Byte)
+  Private Sub MsgFromService2(msg() As Byte)
     Select Case msg(0)
       Case 1 'listing users
         Dim u = ParseUser(msg, 1)
@@ -62,27 +62,27 @@
     End Select
   End Sub
 
-  Private Function ParseUser(ByVal buf As Byte(), ByVal index As Integer) As User
+  Private Function ParseUser(buf As Byte(), index As Integer) As User
     Dim rv As New User
     Dim i = buf(index)
     rv.ID = System.Text.Encoding.ASCII.GetString(buf, index + 1, i)
     Dim p = index + 1 + i
     rv.Status = CType(buf(p), UserStatus)
     p += 1
-    rv.LastUpdate = #1/1/1970#.AddSeconds((CUInt(buf(p)) << 24) Or _
-                          (CUInt(buf(p + 1)) << 16) Or _
-                          (CUInt(buf(p + 2)) << 8) Or _
+    rv.LastUpdate = #1/1/1970#.AddSeconds((CUInt(buf(p)) << 24) Or
+                          (CUInt(buf(p + 1)) << 16) Or
+                          (CUInt(buf(p + 2)) << 8) Or
                           CUInt(buf(p + 3)))
     p += 4
     Dim ipBA(3) As Byte
     Array.Copy(buf, p, ipBA, 0, 4)
-    rv.IPAddr = New JHSoftware.SimpleDNS.Plugin.IPAddressV4(ipBA)
+    rv.IPAddr = New SdnsIPv4(ipBA)
     Return rv
   End Function
 
   Class User
     Friend ID As String
-    Friend IPAddr As JHSoftware.SimpleDNS.Plugin.IPAddressV4
+    Friend IPAddr As SdnsIPv4
     Friend Status As UserStatus
     Friend LastUpdate As DateTime
 
@@ -121,7 +121,7 @@
     Friend OrderDesc As Boolean
     Friend SortCols As New List(Of Integer)
 
-    Public Function Compare(ByVal x As Object, ByVal y As Object) As Integer Implements System.Collections.IComparer.Compare
+    Public Function Compare(x As Object, y As Object) As Integer Implements System.Collections.IComparer.Compare
       Dim u1 = DirectCast(DirectCast(x, ListViewItem).Tag, User)
       Dim u2 = DirectCast(DirectCast(y, ListViewItem).Tag, User)
       Dim rv As Integer
@@ -142,7 +142,7 @@
     End Function
   End Class
 
-  Private Sub lst_ColumnClick(ByVal sender As Object, ByVal e As System.Windows.Forms.ColumnClickEventArgs) Handles lst.ColumnClick
+  Private Sub lst_ColumnClick(sender As Object, e As System.Windows.Forms.ColumnClickEventArgs) Handles lst.ColumnClick
     With DirectCast(lst.ListViewItemSorter, MySorter)
       If .SortCols(0) = e.Column Then
         .OrderDesc = Not .OrderDesc
@@ -157,13 +157,13 @@
     lst.Sort()
   End Sub
 
-  Private Sub mnuItem_Opening(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles mnuItem.Opening
+  Private Sub mnuItem_Opening(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles mnuItem.Opening
     If lst.SelectedItems.Count = 0 Then e.Cancel = True : Exit Sub
     If DirectCast(lst.SelectedItems(0).Tag, User).Status <> UserStatus.Online Then e.Cancel = True : Exit Sub
 
   End Sub
 
-  Private Sub mnuOffline_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuOffline.Click
+  Private Sub mnuOffline_Click(sender As System.Object, e As System.EventArgs) Handles mnuOffline.Click
     If lst.SelectedItems.Count = 0 Then Exit Sub
     With DirectCast(lst.SelectedItems(0).Tag, User)
       If .Status <> UserStatus.Online Then Exit Sub

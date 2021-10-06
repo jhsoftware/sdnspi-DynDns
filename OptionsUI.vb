@@ -4,22 +4,21 @@
 
   Dim cfg As New MyConfig
 
-  Private Sub btnUpdMet_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnUpdMet.Click
+  Private Sub btnUpdMet_Click(sender As System.Object, e As System.EventArgs) Handles btnUpdMet.Click
     Dim frm = New frmUpdateMethods
     frm.LoadConfig(cfg)
     If frm.ShowDialog() <> DialogResult.OK Then Exit Sub
     frm.SaveToConfig(cfg)
   End Sub
 
-  Private Sub lstUsers_EditItem(ByVal curItem As Object) Handles lstUsers.EditItem
+  Private Sub lstUsers_EditItem(curItem As Object) Handles lstUsers.EditItem
     Dim frm = New frmUser
     frm.FromList = lstUsers
-    frm.txtIP = GetIPCtrl(True, False)
     If curItem IsNot Nothing Then frm.LoadData(DirectCast(curItem, MyConfig.User))
     frm.ShowDialog()
   End Sub
 
-  Public Overrides Sub LoadData(ByVal config As String)
+  Public Overrides Sub LoadData(config As String)
     If config Is Nothing Then Exit Sub 'new instance
     cfg = MyConfig.LoadFromXML(config)
     txtSuffix.Text = cfg.Suffix.ToString
@@ -30,9 +29,9 @@
   End Sub
 
   Public Overrides Function SaveData() As String
-    cfg.Suffix = JHSoftware.SimpleDNS.Plugin.DomainName.Parse(txtSuffix.Text.Trim)
+    cfg.Suffix = DomName.Parse(txtSuffix.Text.Trim)
     cfg.SuffixSegCt = cfg.Suffix.SegmentCount
-    cfg.Users = New Dictionary(Of JHSoftware.SimpleDNS.Plugin.DomainName, MyConfig.User)
+    cfg.Users = New Dictionary(Of DomName, MyConfig.User)
     For Each user As MyConfig.User In lstUsers.Items
       cfg.Users.Add(user.ID, user)
     Next
@@ -41,13 +40,13 @@
   End Function
 
   Public Overrides Function ValidateData() As Boolean
-    Dim suffix As JHSoftware.SimpleDNS.Plugin.DomainName = Nothing
+    Dim suffix As DomName = Nothing
     If txtSuffix.Text.Trim.Length = 0 Then
       MessageBox.Show("Host name suffix is required", "DynDNS", MessageBoxButtons.OK, MessageBoxIcon.Error)
       txtSuffix.Focus()
       Return False
     End If
-    If Not JHSoftware.SimpleDNS.Plugin.DomainName.TryParse(txtSuffix.Text.Trim, suffix) Then
+    If Not DomName.TryParse(txtSuffix.Text.Trim, suffix) Then
       MessageBox.Show("Invalid host name suffix", "DynDNS", MessageBoxButtons.OK, MessageBoxIcon.Error)
       txtSuffix.Focus()
       Return False
@@ -62,7 +61,7 @@
       txtSuffix.Focus()
       Return False
     End If
-    Dim UserHN As JHSoftware.SimpleDNS.Plugin.DomainName
+    Dim UserHN As DomName
     For Each user As MyConfig.User In lstUsers.Items
       UserHN = user.ID & suffix
       For Each user2 As MyConfig.User In lstUsers.Items

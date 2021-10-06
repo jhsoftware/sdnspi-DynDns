@@ -2,43 +2,43 @@
 Partial Class frmUser
     Inherits System.Windows.Forms.Form
 
-    'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
-    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
-        Try
-            If disposing AndAlso components IsNot Nothing Then
-                components.Dispose()
-            End If
-        Finally
-            MyBase.Dispose(disposing)
-        End Try
-    End Sub
+  'Form overrides dispose to clean up the component list.
+  <System.Diagnostics.DebuggerNonUserCode()>
+  Protected Overrides Sub Dispose(disposing As Boolean)
+    Try
+      If disposing AndAlso components IsNot Nothing Then
+        components.Dispose()
+      End If
+    Finally
+      MyBase.Dispose(disposing)
+    End Try
+  End Sub
 
-    'Required by the Windows Form Designer
-    Private components As System.ComponentModel.IContainer
+  'Required by the Windows Form Designer
+  Private components As System.ComponentModel.IContainer
 
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-    Me.btnOK = New System.Windows.Forms.Button
-    Me.btnCancel = New System.Windows.Forms.Button
-    Me.GroupBox1 = New System.Windows.Forms.GroupBox
-    Me.txtDummy = New System.Windows.Forms.TextBox
-    Me.Label5 = New System.Windows.Forms.Label
-    Me.chkAutoHash = New System.Windows.Forms.CheckBox
-    Me.txtTSIG = New System.Windows.Forms.TextBox
-    Me.Label3 = New System.Windows.Forms.Label
-    Me.lstHostNames = New AERListBox
-    Me.Label4 = New System.Windows.Forms.Label
-    Me.chkDisable = New System.Windows.Forms.CheckBox
-    Me.txtPassword = New System.Windows.Forms.TextBox
-    Me.Label2 = New System.Windows.Forms.Label
-    Me.txtID = New System.Windows.Forms.TextBox
-    Me.Label1 = New System.Windows.Forms.Label
-    Me.Label6 = New System.Windows.Forms.Label
-    Me.txtNotes = New System.Windows.Forms.TextBox
+    Me.btnOK = New System.Windows.Forms.Button()
+    Me.btnCancel = New System.Windows.Forms.Button()
+    Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+    Me.txtIP = New JHSoftware.SimpleDNS.ctlIP()
+    Me.txtNotes = New System.Windows.Forms.TextBox()
+    Me.Label6 = New System.Windows.Forms.Label()
+    Me.Label5 = New System.Windows.Forms.Label()
+    Me.chkAutoHash = New System.Windows.Forms.CheckBox()
+    Me.txtTSIG = New System.Windows.Forms.TextBox()
+    Me.Label3 = New System.Windows.Forms.Label()
+    Me.lstHostNames = New AERListBox()
+    Me.Label4 = New System.Windows.Forms.Label()
+    Me.chkDisable = New System.Windows.Forms.CheckBox()
+    Me.txtPassword = New System.Windows.Forms.TextBox()
+    Me.Label2 = New System.Windows.Forms.Label()
+    Me.txtID = New System.Windows.Forms.TextBox()
+    Me.Label1 = New System.Windows.Forms.Label()
     Me.GroupBox1.SuspendLayout()
     Me.SuspendLayout()
     '
@@ -64,11 +64,11 @@ Partial Class frmUser
     'GroupBox1
     '
     Me.GroupBox1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-                Or System.Windows.Forms.AnchorStyles.Left) _
-                Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+    Me.GroupBox1.Controls.Add(Me.txtIP)
     Me.GroupBox1.Controls.Add(Me.txtNotes)
     Me.GroupBox1.Controls.Add(Me.Label6)
-    Me.GroupBox1.Controls.Add(Me.txtDummy)
     Me.GroupBox1.Controls.Add(Me.Label5)
     Me.GroupBox1.Controls.Add(Me.chkAutoHash)
     Me.GroupBox1.Controls.Add(Me.txtTSIG)
@@ -88,14 +88,33 @@ Partial Class frmUser
     Me.GroupBox1.TabStop = False
     Me.GroupBox1.Text = "DynDNS Service User"
     '
-    'txtDummy
+    'txtIP
     '
-    Me.txtDummy.Location = New System.Drawing.Point(91, 154)
-    Me.txtDummy.Margin = New System.Windows.Forms.Padding(3, 13, 3, 3)
-    Me.txtDummy.Name = "txtDummy"
-    Me.txtDummy.Size = New System.Drawing.Size(100, 20)
-    Me.txtDummy.TabIndex = 8
-    Me.txtDummy.Visible = False
+    Me.txtIP.AutoSize = True
+    Me.txtIP.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+    Me.txtIP.IPVersion = JHSoftware.SimpleDNS.IPVersionEnum.IPv4
+    Me.txtIP.Location = New System.Drawing.Point(91, 157)
+    Me.txtIP.Name = "txtIP"
+    Me.txtIP.Size = New System.Drawing.Size(174, 22)
+    Me.txtIP.TabIndex = 14
+    Me.txtIP.Value = Nothing
+    '
+    'txtNotes
+    '
+    Me.txtNotes.Location = New System.Drawing.Point(18, 315)
+    Me.txtNotes.Name = "txtNotes"
+    Me.txtNotes.Size = New System.Drawing.Size(254, 20)
+    Me.txtNotes.TabIndex = 12
+    '
+    'Label6
+    '
+    Me.Label6.AutoSize = True
+    Me.Label6.Location = New System.Drawing.Point(18, 299)
+    Me.Label6.Margin = New System.Windows.Forms.Padding(3, 10, 3, 0)
+    Me.Label6.Name = "Label6"
+    Me.Label6.Size = New System.Drawing.Size(84, 13)
+    Me.Label6.TabIndex = 11
+    Me.Label6.Text = "Notes (optional):"
     '
     'Label5
     '
@@ -123,7 +142,7 @@ Partial Class frmUser
     'txtTSIG
     '
     Me.txtTSIG.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
     Me.txtTSIG.Location = New System.Drawing.Point(91, 98)
     Me.txtTSIG.Margin = New System.Windows.Forms.Padding(3, 13, 3, 3)
     Me.txtTSIG.Name = "txtTSIG"
@@ -144,7 +163,7 @@ Partial Class frmUser
     'lstHostNames
     '
     Me.lstHostNames.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
     Me.lstHostNames.Location = New System.Drawing.Point(18, 209)
     Me.lstHostNames.Name = "lstHostNames"
     Me.lstHostNames.Size = New System.Drawing.Size(254, 77)
@@ -175,7 +194,7 @@ Partial Class frmUser
     'txtPassword
     '
     Me.txtPassword.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
     Me.txtPassword.Location = New System.Drawing.Point(91, 62)
     Me.txtPassword.Margin = New System.Windows.Forms.Padding(3, 13, 3, 3)
     Me.txtPassword.Name = "txtPassword"
@@ -197,7 +216,7 @@ Partial Class frmUser
     'txtID
     '
     Me.txtID.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
     Me.txtID.CharacterCasing = System.Windows.Forms.CharacterCasing.Lower
     Me.txtID.Location = New System.Drawing.Point(91, 26)
     Me.txtID.MaxLength = 63
@@ -213,23 +232,6 @@ Partial Class frmUser
     Me.Label1.Size = New System.Drawing.Size(46, 13)
     Me.Label1.TabIndex = 0
     Me.Label1.Text = "User-ID:"
-    '
-    'Label6
-    '
-    Me.Label6.AutoSize = True
-    Me.Label6.Location = New System.Drawing.Point(18, 299)
-    Me.Label6.Margin = New System.Windows.Forms.Padding(3, 10, 3, 0)
-    Me.Label6.Name = "Label6"
-    Me.Label6.Size = New System.Drawing.Size(84, 13)
-    Me.Label6.TabIndex = 11
-    Me.Label6.Text = "Notes (optional):"
-    '
-    'txtNotes
-    '
-    Me.txtNotes.Location = New System.Drawing.Point(18, 315)
-    Me.txtNotes.Name = "txtNotes"
-    Me.txtNotes.Size = New System.Drawing.Size(254, 20)
-    Me.txtNotes.TabIndex = 12
     '
     'frmUser
     '
@@ -266,9 +268,8 @@ Partial Class frmUser
   Friend WithEvents Label3 As System.Windows.Forms.Label
   Friend WithEvents chkAutoHash As System.Windows.Forms.CheckBox
   Friend WithEvents txtTSIG As System.Windows.Forms.TextBox
-  Friend WithEvents txtDummy As System.Windows.Forms.TextBox
   Friend WithEvents Label5 As System.Windows.Forms.Label
   Friend WithEvents txtNotes As System.Windows.Forms.TextBox
   Friend WithEvents Label6 As System.Windows.Forms.Label
-
+  Friend WithEvents txtIP As ctlIP
 End Class

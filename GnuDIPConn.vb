@@ -19,7 +19,7 @@
     End Try
   End Sub
 
-  Private Sub Send_CallBack(ByVal ia As IAsyncResult)
+  Private Sub Send_CallBack(ia As IAsyncResult)
     Try
 
       Try
@@ -54,8 +54,8 @@
         If i <= 0 Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
         Dim y = x.Substring(0, i)
         x = x.Substring(i + 1)
-        Dim UserID As JHSoftware.SimpleDNS.Plugin.DomainName = Nothing
-        If Not JHSoftware.SimpleDNS.Plugin.DomainName.TryParse(y, UserID) Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
+        Dim UserID As DomName = Nothing
+        If Not DomName.TryParse(y, UserID) Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
         Dim User As MyConfig.User = Nothing
         If Not plugin.Cfg.Users.TryGetValue(UserID, User) Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
         If User.Disabled Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
@@ -72,8 +72,8 @@
         If i <= 0 Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
         y = x.Substring(0, i)
         x = x.Substring(i + 1)
-        Dim hn As JHSoftware.SimpleDNS.Plugin.DomainName = Nothing
-        If Not JHSoftware.SimpleDNS.Plugin.DomainName.TryParse(y, hn) Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
+        Dim hn As DomName = Nothing
+        If Not DomName.TryParse(y, hn) Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
         If hn <> UserID & plugin.Cfg.Suffix Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
 
         REM command
@@ -88,13 +88,13 @@
         End If
         If cmd <> "0" And cmd <> "1" And cmd <> "2" Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
 
-        Dim ip As JHSoftware.SimpleDNS.Plugin.IPAddressV4 = Nothing
+        Dim ip As SdnsIPv4 = Nothing
         If cmd = "0" AndAlso addrStr.Length > 0 Then
-          If Not JHSoftware.SimpleDNS.Plugin.IPAddressV4.TryParse(addrStr, ip) Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
+          If Not SdnsIPv4.TryParse(addrStr, ip) Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
         Else
           With DirectCast(sock.RemoteEndPoint, Net.IPEndPoint).Address
             If .AddressFamily <> Net.Sockets.AddressFamily.InterNetwork Then Respond(GnuDIPResult.InvalidLogin) : Exit Sub
-            ip = New JHSoftware.SimpleDNS.Plugin.IPAddressV4(.GetAddressBytes)
+            ip = New SdnsIPv4(.GetAddressBytes)
           End With
         End If
 
@@ -102,18 +102,18 @@
           plugin.SetUserOffline(User, "GnuDIP")
           Respond(GnuDIPResult.SuccessOffline)
         Else
-          plugin.PerformUpdate(User, ip, DynDNSPlugIn.DefaultTTL, "GnuDIP")
+          Dim unused = plugin.PerformUpdate(User, ip, DynDNSPlugIn.DefaultTTL, "GnuDIP")
           Respond(GnuDIPResult.Success, If(cmd = "2", ip.ToString, ""))
         End If
 
       End SyncLock
 
     Catch ex As Exception
-      plugin.ReportAsyncError(ex)
+      plugin.Host.AsyncError(ex)
     End Try
   End Sub
 
-  Sub Respond(ByVal result As GnuDIPResult, Optional ByVal addr As String = "")
+  Sub Respond(result As GnuDIPResult, Optional addr As String = "")
     Try
       Dim ba = System.Text.Encoding.ASCII.GetBytes(CInt(result).ToString & If(addr.Length > 0, ":" & addr, "") & vbCrLf)
       Try
@@ -136,7 +136,7 @@
 
 
     Catch ex As Exception
-      plugin.ReportAsyncError(ex)
+      plugin.Host.AsyncError(ex)
     End Try
   End Sub
 

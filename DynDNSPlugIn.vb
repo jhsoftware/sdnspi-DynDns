@@ -1,22 +1,23 @@
-﻿Imports JHSoftware.SimpleDNS.Plugin
+﻿Imports System.Threading.Tasks
+Imports JHSoftware.SimpleDNS.Plugin
 
 Public Class DynDNSPlugIn
-  Implements IGetHostPlugIn
+  Implements ILookupHost
   Implements ITSIGUpdateHost
   Implements IViewUI
-  Implements IUpdateHost
   Implements IListsIPAddress
   Implements IListsDomainName
   Implements IQuestions
+  Implements IOptionsUI
 
   Friend Const DefaultTTL As Integer = 30
 
   Friend Cfg As MyConfig
 
-  Friend HostUser As Dictionary(Of JHSoftware.SimpleDNS.Plugin.DomainName, MyConfig.User)
-  Friend HostUserWC As Dictionary(Of JHSoftware.SimpleDNS.Plugin.DomainName, MyConfig.User)
+  Friend HostUser As Dictionary(Of DomName, MyConfig.User)
+  Friend HostUserWC As Dictionary(Of DomName, MyConfig.User)
 
-  Friend UserByIP As JHSortedList(Of IPAddressV4, MyConfig.User)
+  Friend UserByIP As JHSortedList(Of SdnsIPv4, MyConfig.User)
 
   Friend hli As Net.HttpListener
   Friend gdli As Net.Sockets.Socket
@@ -25,23 +26,10 @@ Public Class DynDNSPlugIn
 
   Friend GnuDIPKey(15) As Byte
 
+  Public Property Host As IHost Implements IPlugInBase.Host
+
 #Region "events"
-  Public Event LogLine(ByVal text As String) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.LogLine
-  Public Event AsyncError(ByVal ex As System.Exception) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.AsyncError
-  Public Event SaveConfig(ByVal config As String) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.SaveConfig
-  Public Event MsgToViewUI(ByVal connID As Integer, ByVal msg() As Byte) Implements JHSoftware.SimpleDNS.Plugin.IViewUI.MsgToViewUI
-  Public Event UpdateHost(ByVal hostName As JHSoftware.SimpleDNS.Plugin.DomainName, ByVal ipAddress As IPAddress, ByVal ttl As Integer, ByVal comment As String, ByRef result As Boolean, ByRef failReason As String) Implements JHSoftware.SimpleDNS.Plugin.IUpdateHost.UpdateHost
-  Public Event UpdateHostReverse(ByVal ipAddress As IPAddress, ByVal hostName As JHSoftware.SimpleDNS.Plugin.DomainName, ByVal ttl As Integer, ByVal comment As String, ByRef result As Boolean, ByRef failReason As String) Implements JHSoftware.SimpleDNS.Plugin.IUpdateHost.UpdateHostReverse
-#End Region
-
-#Region "not implemented"
-
-  Public Sub LookupReverse(ByVal req As IDNSRequest, ByRef resultName As JHSoftware.SimpleDNS.Plugin.DomainName, ByRef resultTTL As Integer) Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.LookupReverse
-  End Sub
-
-  Public Sub LookupTXT(ByVal req As IDNSRequest, ByRef resultText As String, ByRef resultTTL As Integer) Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.LookupTXT
-  End Sub
-
+  Public Event MsgToViewUI(connID As Integer, msg() As Byte) Implements JHSoftware.SimpleDNS.Plugin.IViewUI.MsgToViewUI
 #End Region
 
 #Region "Other methods"
@@ -50,23 +38,15 @@ Public Class DynDNSPlugIn
     With GetPlugInTypeInfo
       .Name = "DynDNS Service"
       .Description = "Accepts remote updates from DynDNS clients"
-      .InfoURL = "http://simpledns.com/plugin-dyndns"
-      .ConfigFile = True
-      .MultiThreaded = False
+      .InfoURL = "https://simpledns.plus/kb/173/dyndns-service-plug-in"
     End With
   End Function
 
-  Public Function GetDNSAskAbout() As JHSoftware.SimpleDNS.Plugin.DNSAskAboutGH Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.GetDNSAskAbout
-    With GetDNSAskAbout
-      .ForwardIPv4 = True
-    End With
-  End Function
-
-  Public Function GetOptionsUI(ByVal instanceID As Guid, ByVal dataPath As String) As JHSoftware.SimpleDNS.Plugin.OptionsUI Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.GetOptionsUI
+  Public Function GetOptionsUI(instanceID As Guid, dataPath As String) As JHSoftware.SimpleDNS.Plugin.OptionsUI Implements JHSoftware.SimpleDNS.Plugin.IOptionsUI.GetOptionsUI
     Return New OptionsUI
   End Function
 
-  Public Function InstanceConflict(ByVal config1 As String, ByVal config2 As String, ByRef errorMsg As String) As Boolean Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.InstanceConflict
+  Public Function InstanceConflict(config1 As String, config2 As String, ByRef errorMsg As String) As Boolean Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.InstanceConflict
     Dim c1 = MyConfig.LoadFromXML(config1)
     Dim c2 = MyConfig.LoadFromXML(config2)
     If c1.Suffix = c2.Suffix Then
@@ -85,12 +65,12 @@ Public Class DynDNSPlugIn
     Return False
   End Function
 
-  Public Sub LoadConfig(ByVal config As String, ByVal instanceID As Guid, ByVal dataPath As String, ByRef maxThreads As Integer) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.LoadConfig
+  Public Sub LoadConfig(config As String, instanceID As Guid, dataPath As String) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.LoadConfig
     Cfg = MyConfig.LoadFromXML(config)
 
-    HostUser = New Dictionary(Of JHSoftware.SimpleDNS.Plugin.DomainName, MyConfig.User)
-    HostUserWC = New Dictionary(Of JHSoftware.SimpleDNS.Plugin.DomainName, MyConfig.User)
-    Dim wc = JHSoftware.SimpleDNS.Plugin.DomainName.Parse("*")
+    HostUser = New Dictionary(Of DomName, MyConfig.User)
+    HostUserWC = New Dictionary(Of DomName, MyConfig.User)
+    Dim wc = DomName.Parse("*")
     For Each user In Cfg.Users.Values
       If user.Disabled Then Continue For
       HostUser.Add(user.ID & Cfg.Suffix, user)
@@ -103,7 +83,7 @@ Public Class DynDNSPlugIn
       Next
     Next
 
-    UserByIP = New JHSortedList(Of IPAddressV4, MyConfig.User)
+    UserByIP = New JHSortedList(Of SdnsIPv4, MyConfig.User)
   End Sub
 
   Public Function SaveState() As String Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.SaveState
@@ -121,16 +101,16 @@ Public Class DynDNSPlugIn
     Return doc.OuterXml
   End Function
 
-  Public Sub LoadState(ByVal state As String) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.LoadState
-    UserByIP = New JHSortedList(Of IPAddressV4, MyConfig.User)
+  Public Sub LoadState(state As String) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.LoadState
+    UserByIP = New JHSortedList(Of SdnsIPv4, MyConfig.User)
     If state.Length = 0 Then Exit Sub
     Dim doc = New Xml.XmlDocument
     doc.LoadXml(state)
     Dim root = DirectCast(doc.GetElementsByTagName("config").Item(0), Xml.XmlElement)
     Dim user As MyConfig.User = Nothing
     For Each elem As Xml.XmlElement In root.GetElementsByTagName("User")
-      If Cfg.Users.TryGetValue(JHSoftware.SimpleDNS.Plugin.DomainName.Parse(elem.GetAttribute("ID")), user) Then
-        If elem.HasAttribute("IP") Then user.CurIP = IPAddressV4.Parse(elem.GetAttribute("IP"))
+      If Cfg.Users.TryGetValue(DomName.Parse(elem.GetAttribute("ID")), user) Then
+        If elem.HasAttribute("IP") Then user.CurIP = SdnsIPv4.Parse(elem.GetAttribute("IP"))
         user.CurTTL = elem.GetAttrInt("TTL", DefaultTTL)
         user.LastUpdate = elem.GetAttrDateTime("LastUpdate", #1/1/1970#)
         user.Offline = elem.GetAttrBool("Offline")
@@ -141,22 +121,21 @@ Public Class DynDNSPlugIn
     Next
   End Sub
 
-  Public Sub Lookup(ByVal req As IDNSRequest, ByRef resultIP As IPAddress, ByRef resultTTL As Integer) Implements JHSoftware.SimpleDNS.Plugin.IGetHostPlugIn.Lookup
+  Public Async Function LookupHost(req As IDNSRequest) As Task(Of LookupResult(Of SdnsIP)) Implements ILookupHost.LookupHost
+    If req.QType <> DNSRecType.A Then Return Nothing
     Dim lookupName = req.QName
     SyncLock Me
       Dim user = FindUserWithDomain(lookupName)
-      If user Is Nothing OrElse user.Disabled Then resultIP = Nothing : Exit Sub
+      If user Is Nothing OrElse user.Disabled Then Return Nothing
       If user.Offline AndAlso user.OffLineIP IsNot Nothing Then
-        resultIP = user.OffLineIP
-        resultTTL = DynDNSPlugIn.DefaultTTL
+        Return New LookupResult(Of SdnsIP) With {.Value = user.OffLineIP, .TTL = DefaultTTL}
       Else
-        resultIP = user.CurIP
-        resultTTL = user.CurTTL
+        Return New LookupResult(Of SdnsIP) With {.Value = user.CurIP, .TTL = user.CurTTL}
       End If
     End SyncLock
-  End Sub
+  End Function
 
-  Public Sub StartService() Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.StartService
+  Private Async Function StartService() As Task Implements IPlugInBase.StartService
     IsStopping = False
     myRandom.NextBytes(GnuDIPKey)
     If Cfg.UpMeGnuDIP Then
@@ -165,9 +144,9 @@ Public Class DynDNSPlugIn
         gdli.Bind(New Net.IPEndPoint(Net.IPAddress.Any, Cfg.GnuDIPPort))
         gdli.Listen(5)
         gdli.BeginAccept(AddressOf GDLI_CallBack, gdli)
-        RaiseEvent LogLine("Listening for GnuDIP requests on TCP port " & Cfg.GnuDIPPort)
+        Host.LogLine("Listening for GnuDIP requests on TCP port " & Cfg.GnuDIPPort)
       Catch ex As Exception
-        RaiseEvent LogLine("GnuDIP socket not started - Error: " & ex.Message)
+        Host.LogLine("GnuDIP socket not started - Error: " & ex.Message)
       End Try
     End If
     If Cfg.BaseUrlInUse Or Cfg.UpMeHttpDynCom Then
@@ -180,13 +159,13 @@ Public Class DynDNSPlugIn
         hli.Start()
         hli.BeginGetContext(AddressOf HLI_CallBack, hli)
       Catch ex As Exception
-        RaiseEvent LogLine("HTTP listener not started - Error: " & ex.Message)
-        Exit Sub
+        Host.LogLine("HTTP listener not started - Error: " & ex.Message)
+        Exit Function
       End Try
-      If Cfg.BaseUrlInUse Then RaiseEvent LogLine("Listening for HTTP requests at " & Cfg.BaseURL)
-      If Cfg.UpMeHttpDynCom Then RaiseEvent LogLine("Listening for HTTP requests at http://*/nic/")
+      If Cfg.BaseUrlInUse Then Host.LogLine("Listening for HTTP requests at " & Cfg.BaseURL)
+      If Cfg.UpMeHttpDynCom Then Host.LogLine("Listening for HTTP requests at http://*/nic/")
     End If
-  End Sub
+  End Function
 
   Public Sub StopService() Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.StopService
     IsStopping = True
@@ -207,7 +186,7 @@ Public Class DynDNSPlugIn
     End If
   End Sub
 
-  Public Function GetTSIGKeySecret(ByVal keyName As JHSoftware.SimpleDNS.Plugin.DomainName, ByVal algorithm As String) As Byte() Implements JHSoftware.SimpleDNS.Plugin.ITSIGUpdateHost.GetTSIGKeySecret
+  Public Async Function GetTSIGKeySecret(keyName As DomName, algorithm As String) As Threading.Tasks.Task(Of Byte()) Implements JHSoftware.SimpleDNS.Plugin.ITSIGUpdateHost.GetTSIGKeySecret
     If Not Cfg.UpMeTsig Then Return Nothing
     If keyName.SegmentCount <> 1 Then Return Nothing
     If algorithm <> "HMAC-MD5" Then Return Nothing
@@ -219,12 +198,12 @@ Public Class DynDNSPlugIn
     End SyncLock
   End Function
 
-  Public Function TSIGUpdateHost(ByVal fromIP As IPAddress, _
-                                 ByVal keyName As JHSoftware.SimpleDNS.Plugin.DomainName, _
-                                 ByVal algorithm As String, _
-                                 ByVal hostName As JHSoftware.SimpleDNS.Plugin.DomainName, _
-                                 ByVal ipAddress As IPAddress, _
-                                 ByVal ttl As Integer) As Boolean Implements JHSoftware.SimpleDNS.Plugin.ITSIGUpdateHost.TSIGUpdateHost
+  Public Async Function TSIGUpdateHost(fromIP As SdnsIP,
+                                 keyName As DomName,
+                                 algorithm As String,
+                                 hostName As DomName,
+                                 ipAddress As SdnsIP,
+                                 ttl As Integer) As Threading.Tasks.Task(Of Boolean) Implements JHSoftware.SimpleDNS.Plugin.ITSIGUpdateHost.TSIGUpdateHost
     If Not Cfg.UpMeTsig Then Return False
     If ipAddress.IPVersion <> 4 Then Return False
     If keyName.SegmentCount <> 1 Then Return False
@@ -234,19 +213,19 @@ Public Class DynDNSPlugIn
       Dim user As MyConfig.User = Nothing
       If Not Cfg.Users.TryGetValue(keyName, user) Then Return False
       If user.Disabled Then Return False
-      PerformUpdate(user, DirectCast(ipAddress, IPAddressV4), ttl, "DNS TSIG")
+      Dim unused = PerformUpdate(user, DirectCast(ipAddress, SdnsIPv4), ttl, "DNS TSIG")
       Return True
     End SyncLock
   End Function
 
 #End Region
 
-  Friend Sub SetUserOffline(ByVal user As MyConfig.User, ByVal UpMethod As String)
+  Friend Sub SetUserOffline(user As MyConfig.User, UpMethod As String)
     If user.Disabled Then Exit Sub
     If user.OffLineIP IsNot Nothing Then
-      PerformUpdate(user, user.OffLineIP, DynDNSPlugIn.DefaultTTL, UpMethod, True)
+      Dim unused = PerformUpdate(user, user.OffLineIP, DynDNSPlugIn.DefaultTTL, UpMethod, True)
     Else
-      RaiseEvent LogLine("User '" & user.ID.ToString & "' offline via " & UpMethod)
+      Host.LogLine("User '" & user.ID.ToString & "' offline via " & UpMethod)
       If user.CurIP IsNot Nothing Then UserByIP.Remove(user.CurIP, user)
       user.Offline = True
       user.LastUpdate = DateTime.UtcNow
@@ -254,12 +233,12 @@ Public Class DynDNSPlugIn
     End If
   End Sub
 
-  Friend Sub PerformUpdate(ByVal user As MyConfig.User, _
-                           ByVal newIP As IPAddressV4, _
-                           ByVal newTTL As Integer, _
-                           ByVal UpMethod As String, _
-                           Optional ByVal OffLine As Boolean = False)
-    If user.Disabled Then Exit Sub
+  Friend Async Function PerformUpdate(user As MyConfig.User,
+                           newIP As SdnsIPv4,
+                           newTTL As Integer,
+                           UpMethod As String,
+                           Optional OffLine As Boolean = False) As Task
+    If user.Disabled Then Exit Function
 
     If user.CurIP IsNot Nothing Then UserByIP.Remove(user.CurIP, user)
     user.CurIP = newIP
@@ -269,29 +248,33 @@ Public Class DynDNSPlugIn
     If Not OffLine Then UserByIP.Add(newIP, user)
 
     If OffLine Then
-      RaiseEvent LogLine("User '" & user.ID.ToString & "' offline via " & UpMethod)
+      Host.LogLine("User '" & user.ID.ToString & "' offline via " & UpMethod)
     Else
-      RaiseEvent LogLine("User '" & user.ID.ToString & "' now online at " & newIP.ToString & " via " & UpMethod)
+      Host.LogLine("User '" & user.ID.ToString & "' now online at " & newIP.ToString & " via " & UpMethod)
     End If
 
     SendViewUserMsg(-1, 2, user)
 
     If Cfg.UpdateZones Then
       Dim recComment = "user '" & user.ID.ToString & "' via " & UpMethod
-      Dim result As Boolean
-      Dim failReason As String = Nothing
       Dim hn = user.ID & Cfg.Suffix
-      RaiseEvent UpdateHost(hn, newIP, newTTL, recComment, result, failReason)
-      If Not result Then RaiseEvent LogLine("Failed to update A-record " & hn.ToString & " = " & newIP.ToString & " in local zone: " & failReason)
+      Try
+        Await Host.UpdateHost(hn, newIP, newTTL, recComment)
+      Catch ex As Exception
+        Host.LogLine("Failed to update A-record " & hn.ToString & " = " & newIP.ToString & " in local zone: " & ex.Message)
+      End Try
       For Each hn In user.HostNames
-        RaiseEvent UpdateHost(hn, newIP, newTTL, recComment, result, failReason)
-        If Not result Then RaiseEvent LogLine("Failed to update A-record " & hn.ToString & " = " & newIP.ToString & " in local zone: " & failReason)
+        Try
+          Await Host.UpdateHost(hn, newIP, newTTL, recComment)
+        Catch ex As Exception
+          Host.LogLine("Failed to update A-record " & hn.ToString & " = " & newIP.ToString & " in local zone: " & ex.Message)
+        End Try
       Next
     End If
 
-  End Sub
+  End Function
 
-  Sub GDLI_CallBack(ByVal ia As IAsyncResult)
+  Sub GDLI_CallBack(ia As IAsyncResult)
     Try
       Dim sck As Net.Sockets.Socket = Nothing
       Try
@@ -300,7 +283,7 @@ Public Class DynDNSPlugIn
         If IsStopping Then Exit Sub
         REM ignore 10054 here - confusing users
         If ex.SocketErrorCode <> Net.Sockets.SocketError.ConnectionReset Then
-          RaiseEvent LogLine("Socket error accepting GnuDIP TCP connection: " & ex.ErrorCode & " " & ex.Message)
+          Host.LogLine("Socket error accepting GnuDIP TCP connection: " & ex.ErrorCode & " " & ex.Message)
         End If
         GoTo markWaitForNext
       End Try
@@ -315,11 +298,11 @@ markWaitForNext:
 
     Catch ex As Exception
       If IsStopping Then Exit Sub
-      RaiseEvent AsyncError(ex)
+      Host.AsyncError(ex)
     End Try
   End Sub
 
-  Private Sub HLI_CallBack(ByVal ia As IAsyncResult)
+  Private Sub HLI_CallBack(ia As IAsyncResult)
     Try
       REM in case plug-in has been restarted - error reported by jAssing on 28.2.2009
       If ia.AsyncState IsNot hli Then Exit Sub
@@ -337,38 +320,34 @@ markWaitForNext:
 
     Catch ex As Exception
       If IsStopping Then Exit Sub
-      RaiseEvent AsyncError(ex)
+      Host.AsyncError(ex)
     End Try
-  End Sub
-
-  Friend Sub ReportAsyncError(ByVal ex As Exception)
-    RaiseEvent AsyncError(ex)
   End Sub
 
   Public Function GetViewUI() As JHSoftware.SimpleDNS.Plugin.ViewUI Implements JHSoftware.SimpleDNS.Plugin.IViewUI.GetViewUI
     Return New ViewUI
   End Function
 
-  Public Sub MsgFromViewUI(ByVal connID As Integer, ByVal msg() As Byte) Implements JHSoftware.SimpleDNS.Plugin.IViewUI.MsgFromViewUI
+  Public Sub MsgFromViewUI(connID As Integer, msg() As Byte) Implements JHSoftware.SimpleDNS.Plugin.IViewUI.MsgFromViewUI
     Select Case msg(0)
       Case 1 ' get list 
         For Each user In Cfg.Users.Values
           If Not user.Disabled Then SendViewUserMsg(connID, 1, user)
         Next
       Case 2 'set user offline
-        Dim userID = JHSoftware.SimpleDNS.Plugin.DomainName.Parse(System.Text.Encoding.ASCII.GetString(msg, 1, msg.Length - 1))
+        Dim userID = DomName.Parse(System.Text.Encoding.ASCII.GetString(msg, 1, msg.Length - 1))
         Dim user As MyConfig.User = Nothing
         If Not Cfg.Users.TryGetValue(userID, user) Then Exit Sub
         SetUserOffline(user, "GUI")
     End Select
   End Sub
 
-  Private Sub SendViewUserMsg(ByVal connID As Integer, ByVal cmd As Byte, ByVal user As MyConfig.User)
-    Dim baID = user.ID.GetBytesNT()
-    Dim ba(baID.Length + 10 - 1) As Byte
+  Private Sub SendViewUserMsg(connID As Integer, cmd As Byte, user As MyConfig.User)
+    Dim baID = user.ID.GetBytes()
+    Dim ba(baID.Length + 8) As Byte
     ba(0) = cmd
     baID.CopyTo(ba, 1)
-    Dim p = 1 + baID.Length
+    Dim p = baID.Length ' 1 + baID.Length -1 
     If user.Disabled Then
       ba(p) = 0
     ElseIf user.Offline Then
@@ -387,13 +366,13 @@ markWaitForNext:
     RaiseEvent MsgToViewUI(connID, ba)
   End Sub
 
-  Public Function ListsIPAddress(ByVal ip As JHSoftware.SimpleDNS.Plugin.IPAddress) As Boolean Implements JHSoftware.SimpleDNS.Plugin.IListsIPAddress.ListsIPAddress
+  Public Async Function ListsIPAddress(ip As SdnsIP) As Threading.Tasks.Task(Of Boolean) Implements JHSoftware.SimpleDNS.Plugin.IListsIPAddress.ListsIPAddress
     SyncLock Me
       Return FindActiveUserWithIP(ip) IsNot Nothing
     End SyncLock
   End Function
 
-  Public Function ListsDomainName(ByVal domain As JHSoftware.SimpleDNS.Plugin.DomainName) As Boolean Implements JHSoftware.SimpleDNS.Plugin.IListsDomainName.ListsDomainName
+  Public Async Function ListsDomainName(domain As DomName) As Threading.Tasks.Task(Of Boolean) Implements JHSoftware.SimpleDNS.Plugin.IListsDomainName.ListsDomainName
     SyncLock Me
       Dim user = FindUserWithDomain(domain)
       If user Is Nothing OrElse user.Disabled OrElse user.Offline Then Return False
@@ -405,41 +384,33 @@ markWaitForNext:
   Public Function QuestionList() As JHSoftware.SimpleDNS.Plugin.IQuestions.QuestionInfo() Implements JHSoftware.SimpleDNS.Plugin.IQuestions.QuestionList
     Dim rv(0) As IQuestions.QuestionInfo
     rv(0).ID = 1
-    rv(0).Description = "Notes of DynDNS user, who sent DNS request, contain text"
-    rv(0).HasUI = True
+    rv(0).Question = "Notes of DynDNS user, who sent DNS request, contain text"
+    rv(0).ValuePrompt = "Notes of DynDNS user, who sent DNS request, contain"
     Return rv
   End Function
 
-  Public Function QuestionGetUI(ByVal id As Integer) As JHSoftware.SimpleDNS.Plugin.OptionsUI Implements JHSoftware.SimpleDNS.Plugin.IQuestions.QuestionGetUI
-    Return New Q1OptionsUI
-  End Function
-
-  Public Function QuestionLoadConfig(ByVal id As Integer, ByVal configStr As String) As Object Implements JHSoftware.SimpleDNS.Plugin.IQuestions.QuestionLoadConfig
-    Return configStr
-  End Function
-
-  Public Function QuestionAsk(ByVal id As Integer, ByVal configObj As Object, ByVal req As JHSoftware.SimpleDNS.Plugin.IDNSRequest) As Boolean Implements JHSoftware.SimpleDNS.Plugin.IQuestions.QuestionAsk
+  Public Async Function QuestionAsk(id As Integer, value As String, req As JHSoftware.SimpleDNS.Plugin.IDNSRequest) As Threading.Tasks.Task(Of Boolean) Implements JHSoftware.SimpleDNS.Plugin.IQuestions.QuestionAsk
     SyncLock Me
       Dim user = FindActiveUserWithIP(req.FromIP)
       If user Is Nothing Then Return False
-      Return (user.Notes.IndexOf(DirectCast(configObj, String), StringComparison.CurrentCultureIgnoreCase) >= 0)
+      Return (user.Notes.IndexOf(value, StringComparison.CurrentCultureIgnoreCase) >= 0)
     End SyncLock
   End Function
 
-  Private Function FindActiveUserWithIP(ByVal ip As IPAddress) As MyConfig.User
+  Private Function FindActiveUserWithIP(ip As SdnsIP) As MyConfig.User
     If ip.IPVersion <> 4 Then Return Nothing
-    Dim i = UserByIP.IndexOf(DirectCast(ip, IPAddressV4))
+    Dim i = UserByIP.IndexOf(DirectCast(ip, SdnsIPv4))
     If i < 0 Then Return Nothing
     Do
       With UserByIP(i)
         If Not .Disabled AndAlso Not .Offline Then Return UserByIP(i)
       End With
       i += 1
-    Loop While i < UserByIP.Count AndAlso UserByIP(i).CurIP = DirectCast(ip, IPAddressV4)
+    Loop While i < UserByIP.Count AndAlso UserByIP(i).CurIP = DirectCast(ip, SdnsIPv4)
     Return Nothing
   End Function
 
-  Private Function FindUserWithDomain(ByVal dom As DomainName) As MyConfig.User
+  Private Function FindUserWithDomain(dom As DomName) As MyConfig.User
     Dim rv As MyConfig.User = Nothing
     If HostUser.TryGetValue(dom, rv) Then Return rv
     If HostUserWC.Count = 0 Then Return Nothing
@@ -451,5 +422,8 @@ markWaitForNext:
     End While
     Return Nothing
   End Function
+
+
+
 End Class
 

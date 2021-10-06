@@ -14,7 +14,7 @@
     <AssemblyName>DynDnsPlugIn</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <OptionExplicit>On</OptionExplicit>
     <OptionCompare>Binary</OptionCompare>
     <OptionStrict>On</OptionStrict>
@@ -39,6 +39,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,6 +51,7 @@
     </DocumentationFile>
     <NoWarn>42353,42354,42355</NoWarn>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -61,10 +63,11 @@
     </DocumentationFile>
     <NoWarn>42353,42354,42355</NoWarn>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="sdnsplugin">
-      <HintPath>.\sdnsplugin.dll</HintPath>
+    <Reference Include="sdnscommon">
+      <HintPath>..\..\private\sdns\sdnscommon\bin\Release\sdnscommon.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -74,6 +77,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Import Include="JHSoftware.SimpleDNS" />
     <Import Include="Microsoft.VisualBasic" />
     <Import Include="System" />
     <Import Include="System.Collections" />
@@ -95,12 +99,6 @@
     <Compile Include="HTTPHandler.vb" />
     <Compile Include="JHSortedList.vb" />
     <Compile Include="JHXML.vb" />
-    <Compile Include="Q1OptionsUI.Designer.vb">
-      <DependentUpon>Q1OptionsUI.vb</DependentUpon>
-    </Compile>
-    <Compile Include="Q1OptionsUI.vb">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="ViewUI.Designer.vb">
       <DependentUpon>ViewUI.vb</DependentUpon>
     </Compile>
@@ -136,6 +134,7 @@
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
       <DependentUpon>Application.myapp</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="My Project\Resources.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -158,9 +157,6 @@
   <ItemGroup>
     <EmbeddedResource Include="AERListBox.resx">
       <DependentUpon>AERListBox.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Q1OptionsUI.resx">
-      <DependentUpon>Q1OptionsUI.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ViewUI.resx">
       <DependentUpon>ViewUI.vb</DependentUpon>

@@ -1,9 +1,9 @@
 ﻿Imports JHSoftware.SimpleDNS.Plugin
 
 Friend Class MyConfig
-  Public Suffix As JHSoftware.SimpleDNS.Plugin.DomainName
+  Public Suffix As DomName
   Public SuffixSegCt As Integer
-  Public Users As New Dictionary(Of JHSoftware.SimpleDNS.Plugin.DomainName, User)
+  Public Users As New Dictionary(Of DomName, User)
   Public UpdateZones As Boolean
 
   REM update methods / URLs
@@ -43,13 +43,13 @@ Friend Class MyConfig
     Return doc
   End Function
 
-  Friend Shared Function LoadFromXML(ByVal config As String) As MyConfig
+  Friend Shared Function LoadFromXML(config As String) As MyConfig
     Dim rv As New MyConfig
     Dim doc = New Xml.XmlDocument
     doc.LoadXml(config)
     Dim root = DirectCast(doc.GetElementsByTagName("config").Item(0), Xml.XmlElement)
     With rv
-      .Suffix = JHSoftware.SimpleDNS.Plugin.DomainName.Parse(root.GetAttribute("Suffix"))
+      .Suffix = DomName.Parse(root.GetAttribute("Suffix"))
       .SuffixSegCt = .Suffix.SegmentCount
       .UpdateZones = root.GetAttrBool("UpdateZones")
       .UpMeTsig = root.GetAttrBool("UpMeTSIG", True)
@@ -70,18 +70,18 @@ Friend Class MyConfig
       REM v. 5.1 options - no longer supported
       '.Recursion = root.GetAttrBool("Recursion")
       '.DNSBLWhiteList = root.GetAttrBool("DNSBLWhitelist")
-      '.DNSBLDom = If(root.HasAttribute("DNSBLDomain"), JHSoftware.SimpleDNS.Plugin.DomainName.Parse(root.GetAttribute("DNSBLDomain")), Nothing)
+      '.DNSBLDom = If(root.HasAttribute("DNSBLDomain"), DomName.Parse(root.GetAttribute("DNSBLDomain")), Nothing)
     End With
     Return rv
   End Function
 
   Friend Class User
-    Public ID As JHSoftware.SimpleDNS.Plugin.DomainName
+    Public ID As DomName
     Public Password As String
     Public TSIGKeyValue As Byte()
     Public TSIGAutoHash As Boolean
-    Public OffLineIP As IPAddressV4
-    Public HostNames As New List(Of JHSoftware.SimpleDNS.Plugin.DomainName)
+    Public OffLineIP As SdnsIPv4
+    Public HostNames As New List(Of DomName)
     Public Notes As String
     Public Disabled As Boolean
 
@@ -89,7 +89,7 @@ Friend Class MyConfig
       Return ID.ToString & If(Disabled, " [disabled]", "")
     End Function
 
-    Friend Sub SaveToXML(ByVal elem As Xml.XmlElement)
+    Friend Sub SaveToXML(elem As Xml.XmlElement)
       elem.SetAttribute("ID", ID.ToString)
       elem.SetAttribute("Password", Password)
       If Not TSIGAutoHash Then elem.SetAttribute("TSIGKeyValue", Convert.ToBase64String(TSIGKeyValue))
@@ -101,10 +101,10 @@ Friend Class MyConfig
       Next
     End Sub
 
-    Friend Shared Function FromXML(ByVal elem As Xml.XmlElement) As User
+    Friend Shared Function FromXML(elem As Xml.XmlElement) As User
       Dim rv As New User
       With rv
-        .ID = JHSoftware.SimpleDNS.Plugin.DomainName.Parse(elem.GetAttribute("ID"))
+        .ID = DomName.Parse(elem.GetAttribute("ID"))
         .Password = elem.GetAttribute("Password")
         If elem.HasAttribute("TSIGKeyValue") Then
           .TSIGAutoHash = False
@@ -114,11 +114,11 @@ Friend Class MyConfig
           Dim md5 As New System.Security.Cryptography.MD5CryptoServiceProvider
           .TSIGKeyValue = md5.ComputeHash(System.Text.Encoding.UTF8.GetBytes(.Password))
         End If
-        .OffLineIP = If(elem.HasAttribute("OfflineIP"), IPAddressV4.Parse(elem.GetAttribute("OfflineIP")), Nothing)
+        .OffLineIP = If(elem.HasAttribute("OfflineIP"), SdnsIPv4.Parse(elem.GetAttribute("OfflineIP")), Nothing)
         .Notes = elem.GetAttrStr("Notes")
         .Disabled = elem.GetAttrBool("Disabled")
         For Each elem2 As Xml.XmlElement In elem.GetElementsByTagName("HostName")
-          .HostNames.Add(JHSoftware.SimpleDNS.Plugin.DomainName.Parse(elem2.InnerText))
+          .HostNames.Add(DomName.Parse(elem2.InnerText))
         Next
       End With
       Return rv
@@ -127,7 +127,7 @@ Friend Class MyConfig
 
     REM ***************** state *******************
     Friend LastUpdate As DateTime = #1/1/1970#
-    Friend CurIP As IPAddressV4 = Nothing
+    Friend CurIP As SdnsIPv4 = Nothing
     Friend CurTTL As Integer = DynDNSPlugIn.DefaultTTL
     Friend Offline As Boolean = True
 
