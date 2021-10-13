@@ -121,11 +121,13 @@ Public Class DynDNSPlugIn
     Next
   End Sub
 
-  Public Async Function LookupHost(req As IDNSRequest) As Task(Of LookupResult(Of SdnsIP)) Implements ILookupHost.LookupHost
-    If req.QType <> DNSRecType.A Then Return Nothing
-    Dim lookupName = req.QName
+  Public Function LookupHost(name As DomName, ipv6 As Boolean, req As IDNSRequest) As Task(Of LookupResult(Of SdnsIP)) Implements ILookupHost.LookupHost
+    Return Task.FromResult(LookupHost2(name, ipv6, req))
+  End Function
+  Public Function LookupHost2(name As DomName, ipv6 As Boolean, req As IDNSRequest) As LookupResult(Of SdnsIP)
+    If ipv6 Then Return Nothing
     SyncLock Me
-      Dim user = FindUserWithDomain(lookupName)
+      Dim user = FindUserWithDomain(name)
       If user Is Nothing OrElse user.Disabled Then Return Nothing
       If user.Offline AndAlso user.OffLineIP IsNot Nothing Then
         Return New LookupResult(Of SdnsIP) With {.Value = user.OffLineIP, .TTL = DefaultTTL}
@@ -383,7 +385,6 @@ markWaitForNext:
 
   Public Function QuestionList() As JHSoftware.SimpleDNS.Plugin.IQuestions.QuestionInfo() Implements JHSoftware.SimpleDNS.Plugin.IQuestions.QuestionList
     Dim rv(0) As IQuestions.QuestionInfo
-    rv(0).ID = 1
     rv(0).Question = "Notes of DynDNS user, who sent DNS request, contain text"
     rv(0).ValuePrompt = "Notes of DynDNS user, who sent DNS request, contain"
     Return rv
