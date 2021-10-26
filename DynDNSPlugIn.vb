@@ -34,11 +34,11 @@ Public Class DynDNSPlugIn
 
 #Region "Other methods"
 
-  Public Function GetPlugInTypeInfo() As JHSoftware.SimpleDNS.Plugin.IPlugInBase.PlugInTypeInfo Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.GetPlugInTypeInfo
+  Public Function GetPlugInTypeInfo() As JHSoftware.SimpleDNS.Plugin.IPlugInBase.PlugInTypeInfo Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.GetTypeInfo
     With GetPlugInTypeInfo
       .Name = "DynDNS Service"
       .Description = "Accepts remote updates from DynDNS clients"
-      .InfoURL = "https://simpledns.plus/kb/173/dyndns-service-plug-in"
+      .InfoURL = "https://simpledns.plus/plugin-dyndns"
     End With
   End Function
 
@@ -121,10 +121,10 @@ Public Class DynDNSPlugIn
     Next
   End Sub
 
-  Public Function LookupHost(name As DomName, ipv6 As Boolean, req As IDNSRequest) As Task(Of LookupResult(Of SdnsIP)) Implements ILookupHost.LookupHost
+  Public Function LookupHost(name As DomName, ipv6 As Boolean, req As IRequestContext) As Task(Of LookupResult(Of SdnsIP)) Implements ILookupHost.LookupHost
     Return Task.FromResult(LookupHost2(name, ipv6, req))
   End Function
-  Public Function LookupHost2(name As DomName, ipv6 As Boolean, req As IDNSRequest) As LookupResult(Of SdnsIP)
+  Public Function LookupHost2(name As DomName, ipv6 As Boolean, req As IRequestContext) As LookupResult(Of SdnsIP)
     If ipv6 Then Return Nothing
     SyncLock Me
       Dim user = FindUserWithDomain(name)
@@ -390,7 +390,7 @@ markWaitForNext:
     Return rv
   End Function
 
-  Public Async Function QuestionAsk(id As Integer, value As String, req As JHSoftware.SimpleDNS.Plugin.IDNSRequest) As Threading.Tasks.Task(Of Boolean) Implements JHSoftware.SimpleDNS.Plugin.IQuestions.QuestionAsk
+  Public Async Function QuestionAsk(id As Integer, value As String, req As IRequestContext) As Threading.Tasks.Task(Of Boolean) Implements JHSoftware.SimpleDNS.Plugin.IQuestions.QuestionAsk
     SyncLock Me
       Dim user = FindActiveUserWithIP(req.FromIP)
       If user Is Nothing Then Return False
