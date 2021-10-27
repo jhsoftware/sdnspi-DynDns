@@ -9,6 +9,7 @@ Public Class DynDNSPlugIn
   Implements IListsDomainName
   Implements IQuestions
   Implements IOptionsUI
+  Implements IState
 
   Friend Const DefaultTTL As Integer = 30
 
@@ -34,7 +35,7 @@ Public Class DynDNSPlugIn
 
 #Region "Other methods"
 
-  Public Function GetPlugInTypeInfo() As JHSoftware.SimpleDNS.Plugin.IPlugInBase.PlugInTypeInfo Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.GetTypeInfo
+  Public Function GetPlugInTypeInfo() As TypeInfo Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.GetTypeInfo
     With GetPlugInTypeInfo
       .Name = "DynDNS Service"
       .Description = "Accepts remote updates from DynDNS clients"
@@ -86,7 +87,7 @@ Public Class DynDNSPlugIn
     UserByIP = New JHSortedList(Of SdnsIPv4, MyConfig.User)
   End Sub
 
-  Public Function SaveState() As String Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.SaveState
+  Public Function SaveState() As String Implements IState.SaveState
     Dim doc As New Xml.XmlDocument
     Dim root = doc.PrepConfig
     For Each user In Cfg.Users.Values
@@ -101,7 +102,7 @@ Public Class DynDNSPlugIn
     Return doc.OuterXml
   End Function
 
-  Public Sub LoadState(state As String) Implements JHSoftware.SimpleDNS.Plugin.IPlugInBase.LoadState
+  Public Sub LoadState(state As String) Implements IState.LoadState
     UserByIP = New JHSortedList(Of SdnsIPv4, MyConfig.User)
     If state.Length = 0 Then Exit Sub
     Dim doc = New Xml.XmlDocument
