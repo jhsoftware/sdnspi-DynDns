@@ -130,10 +130,12 @@ Public Class DynDNSPlugIn
     SyncLock Me
       Dim user = FindUserWithDomain(name)
       If user Is Nothing OrElse user.Disabled Then Return Nothing
-      If user.Offline AndAlso user.OffLineIP IsNot Nothing Then
+      If Not user.Offline AndAlso user.CurIP IsNot Nothing Then
+        Return New LookupResult(Of SdnsIP) With {.Value = user.CurIP, .TTL = user.CurTTL}
+      ElseIf user.Offline AndAlso user.OffLineIP IsNot Nothing Then
         Return New LookupResult(Of SdnsIP) With {.Value = user.OffLineIP, .TTL = DefaultTTL}
       Else
-        Return New LookupResult(Of SdnsIP) With {.Value = user.CurIP, .TTL = user.CurTTL}
+        Return Nothing
       End If
     End SyncLock
   End Function
