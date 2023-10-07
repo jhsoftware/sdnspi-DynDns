@@ -1,0 +1,8 @@
+v. 1.0.1.0901 - 2023.10.07
+--------------------------
+- Fix: HTTP HEAD requests caused plug-in error and stall.
+- New plug-in versioning scheme - major.minor.rev (semantic) + .simplednsplus-version(0901)
+
+v. 9.1.1 (1.0.0.0901) - 2021-10-28
+----------------------------------
+- First release for Simple DNS Plus v. 9.1

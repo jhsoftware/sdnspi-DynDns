@@ -12,7 +12,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyDescription("DynDNS Service Plug-In")> 
 <Assembly: AssemblyCompany("JH Software ApS")> 
 <Assembly: AssemblyProduct("Simple DNS Plus")>
-<Assembly: AssemblyCopyright("Copyright © 2008-2021 JH Software ApS")>
+<Assembly: AssemblyCopyright("Copyright © 2008-2023 JH Software ApS")>
 <Assembly: AssemblyTrademark("Simple DNS Plus")> 
 
 <Assembly: ComVisible(False)>
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("9.1.2.0")>
-<Assembly: AssemblyFileVersion("9.1.2.0")>
+<Assembly: AssemblyVersion("1.0.1.0901")>
+<Assembly: AssemblyFileVersion("1.0.1.0901")>

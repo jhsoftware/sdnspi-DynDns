@@ -1,8 +1,16 @@
-﻿Friend Class HTTPHandler
+﻿Imports System.Linq
+
+Friend Class HTTPHandler
   Friend ctx As Net.HttpListenerContext
   Friend plugin As DynDNSPlugIn
 
   Friend Sub Process()
+    If Not {"GET", "POST", "PUT"}.Contains(ctx.Request.HttpMethod) Then
+      ctx.Response.StatusCode = 405
+      ctx.Response.Close()
+      Exit Sub
+    End If
+
     ctx.Response.AddHeader("Cache-Control", "private")
     Dim x = ctx.Request.Url.AbsolutePath.ToLower
     Select Case x.Substring(x.LastIndexOf("/"c) + 1)
